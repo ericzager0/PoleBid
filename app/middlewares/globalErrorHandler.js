@@ -19,6 +19,35 @@ const handleZodError = (err) => {
     return error;
 };
 
+const handleSupabaseError = (err) => {
+    let message = 'Error en la base de datos';
+    let statusCode = 500;
+
+    // Códigos de error comunes de PostgreSQL
+    if (err.code === '23505') {
+        message = 'Ya existe un registro con esta información (Dato duplicado).';
+        statusCode = 409; // Conflict
+    } else if (err.code === '23503') {
+        message = 'La operación falló porque hace referencia a un registro que no existe.';
+        statusCode = 400; // Bad Request
+    } else if (err.code === '23502') {
+        message = 'Falta un campo obligatorio en la base de datos.';
+        statusCode = 400; 
+    } else if (err.code === '22P02') {
+        message = 'Formato de dato inválido (ej. un texto donde va un número o un UUID mal formado).';
+        statusCode = 400; 
+    } 
+    else if (err.code === 'PGRST116') {
+        message = 'El recurso solicitado no fue encontrado.';
+        statusCode = 404; // Not Found
+    } else if (err.message) {
+        message = err.message;
+        statusCode = 400;
+    }
+
+    return new AppError(message, statusCode);
+};
+
 const sendErrorDev = (err, res) => {
     /* Detailed error response for development environment */
     res.status(err.statusCode).json({
@@ -67,6 +96,12 @@ const globalErrorHandler = (err, req, res, next) => {
     
     if (err instanceof ZodError || err.name === 'ZodError') {
         workingError = handleZodError(err);
+    }
+
+    const isSupabaseError = err.code && typeof err.code === 'string' && (err.code.length === 5 || err.code.startsWith('PGRST'));
+    
+    if (isSupabaseError) {
+        workingError = handleSupabaseError(err);
     }
 
     // Ensure status and statusCode are preserved if not handled by helpers
