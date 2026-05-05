@@ -1,17 +1,14 @@
 //Services - For debugging purposes only
-import { supabase } from "../config/supabase.js";
+import AppError from "../utils/appError.js";
+import * as devRepository from "../repositories/dev.repository.js";
 
 export const getPongMessage = () => {
     return 'Pong!';
 };
 
 export const supabaseDev = async(name) => {
-    const { data, error } = await supabase
-        .from('pingpongs')
-        .insert({ name });
-
+    await devRepository.addPong(name);
     if (error) {
-        console.error('Error inserting data into Supabase:', error);
-        throw new Error('Failed to save data to Supabase');
+        throw new AppError('Failed to save data to Supabase', 401);
     };
 };
