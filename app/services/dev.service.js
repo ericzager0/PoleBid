@@ -7,7 +7,7 @@ export const getPongMessage = () => {
 };
 
 export const supabaseDev = async(name) => {
-    await devRepository.addPong(name);
+    const {error} = await devRepository.addPong(name);
     if (error) {
         throw new AppError('Failed to save data to Supabase', 401);
     };
