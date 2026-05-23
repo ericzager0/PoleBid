@@ -1,13 +1,12 @@
 import express, { request, response } from "express";
 import "dotenv/config";
 import cors from "cors";
-import morgan from "morgan"; //Logs en dev
+import morgan from "morgan";
 import { mountSwaggerUI } from "./app/middlewares/swagger.setup.js";
-//Import de RUTAS
 import devRoutes from "./app/routes/dev.route.js";
 import authRoutes from "./app/routes/auth.route.js";
+import onboardingRoutes from "./app/routes/onboarding.route.js";
 
-//Creo la aplicación Express
 const app = express();
 
 async function start() {
@@ -17,14 +16,12 @@ async function start() {
     app.use(morgan("dev"));
   }
 
-  //Configuro la seguridad con el protocolo CORS
   app.use(cors());
-  //Configuro la aplicación para que pueda recibir datos en formato JSON
   app.use(express.json());
 
-  /*RUTAS*/
   app.use("/api/dev", devRoutes);
   app.use("/api/auth", authRoutes);
+  app.use("/api/onboarding", onboardingRoutes);
 
   app.all(/(.*)/, (req, res, next) => {
     next(
@@ -34,7 +31,6 @@ async function start() {
       ),
     );
   });
-  //--------------------------------------------------------------------------------------------
 
   const port = process.env.PORT || 3000;
   app.listen(port, () => {
