@@ -1,5 +1,6 @@
 import AppError from "../utils/appError.js";
 import * as onboardingRepository from "../repositories/onboarding.repository.js";
+import { sendEmail } from "../services/email.service.js";
 
 export const startOnboarding = async (email) => {
   const existingOnboarding =
@@ -12,7 +13,7 @@ export const startOnboarding = async (email) => {
   const code = Math.floor(100000 + Math.random() * 900000);
   const onboarding = await onboardingRepository.createOnboarding(email, code);
 
-  // Enviar el email con el código de verificación usando algún servicio de email
+  await sendEmail(email, "VERIFICATION_CODE", { code });
 
   return onboarding;
 };
