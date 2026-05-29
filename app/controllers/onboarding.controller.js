@@ -1,6 +1,7 @@
 import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/appError.js";
 import * as onboardingService from "../services/onboarding.service.js";
+import { requireNumber, requireString } from "../utils/validators.js";
 
 export const startOnboarding = catchAsync(async (req, res, next) => {
   const email = req.body.email;
@@ -56,5 +57,47 @@ export const verifyEmail = catchAsync(async (req, res, next) => {
       email: result.email,
       status: result.status,
     },
+  });
+});
+
+export const uploadDocuments = catchAsync(async (req, res) => {
+  const country = requireNumber(req.body.country, "country");
+  const firstName = requireString(req.body.firstName, "firstName");
+  const lastName = requireString(req.body.lastName, "lastName");
+  const email = requireString(req.body.email, "email");
+  const address = requireString(req.body.address, "address");
+
+  const frontFile = req.files?.documentFront?.[0];
+  const backFile = req.files?.documentBack?.[0];
+
+  if (!frontFile || !backFile) {
+    throw new AppError(
+      "Los archivos documentFront y documentBack son obligatorios",
+      400,
+    );
+  }
+
+  await onboardingService.uploadDocuments(email, {
+    country,
+    firstName,
+    lastName,
+    email,
+    address,
+    documentFront: frontFile,
+    documentBack: backFile,
+  });
+
+  res.status(200).json({ status: "success" });
+});
+
+export const approveDocuments = catchAsync(async (req, res, next) => {
+  // Verificar con el token que sea un admin quien este llamado.
+
+  const email = requireString(req.body.email, "email");
+
+  const result = await onboardingService.approveDocuments(email);
+
+  res.status(200).json({
+    status: "success",
   });
 });

@@ -14,6 +14,20 @@ export const getOnboardingByEmail = async (email) => {
   return data ?? null;
 };
 
+export const getOnboardingById = async (id) => {
+  const { data, error } = await supabase
+    .from("onboardings")
+    .select("id, email, status, code")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data ?? null;
+};
+
 export const createOnboarding = async (email, code) => {
   const { data, error } = await supabase
     .from("onboardings")
@@ -41,4 +55,24 @@ export const updateOnboardingStatus = async (email, status) => {
   }
 
   return data;
+};
+
+export const saveDocuments = async (onboardingId, documentData) => {
+  console.log("Guardando documentos para onboardingId:", onboardingId);
+  console.log("Datos del documento:", documentData);
+
+  const { error } = await supabase.from("onboarding_documents").insert({
+    id: onboardingId,
+    first_name: documentData.firstName,
+    last_name: documentData.lastName,
+    country_id: documentData.country,
+    address: documentData.address,
+    document_front: documentData.document_front_url,
+    document_back: documentData.document_back_url,
+  });
+
+  if (error) {
+    console.log("Error al guardar documentos en la base de datos:", error);
+    throw error;
+  }
 };

@@ -1,6 +1,7 @@
 import AppError from "../utils/appError.js";
 import * as onboardingRepository from "../repositories/onboarding.repository.js";
 import { sendEmail } from "../services/email.service.js";
+import { supabase } from "../config/supabase.config.js";
 
 export const startOnboarding = async (email) => {
   const existingOnboarding =
@@ -57,6 +58,85 @@ export const verifyEmail = async (email, code) => {
   if (!verifiedOnboarding) {
     throw new AppError("No se pudo verificar el email", 500);
   }
+
+  return {
+    email: verifiedOnboarding.email,
+    status: verifiedOnboarding.status,
+  };
+};
+
+export const uploadDocuments = async (email, documentData) => {
+  const onboarding = await onboardingRepository.getOnboardingByEmail(email);
+
+  if (!onboarding) {
+    throw new AppError(
+      "No se encontró un proceso de onboarding para este email",
+      404,
+    );
+  }
+
+  if (onboarding.status !== "verified") {
+    throw new AppError(
+      "El proceso de onboarding debe estar verificado para subir documentos",
+      400,
+    );
+  }
+
+  const { documentFront, documentBack, ...rest } = documentData;
+
+  const [frontUrl, backUrl] = await Promise.all([
+    uploadToStorage(documentFront, `${email}/front`),
+    uploadToStorage(documentBack, `${email}/back`),
+  ]);
+
+  await onboardingRepository.saveDocuments(onboarding.id, {
+    ...rest,
+    document_front_url: frontUrl,
+    document_back_url: backUrl,
+  });
+
+  await onboardingRepository.updateOnboardingStatus(
+    email,
+    "documents_pending_review",
+  );
+};
+
+// Helper para subir las imagenes al bucket de supabase storage
+const uploadToStorage = async (file, path) => {
+  const { error } = await supabase.storage
+    .from("dnis")
+    .upload(path, file.buffer, { contentType: file.mimetype });
+
+  if (error) throw new AppError("Error al subir el archivo a storage", 500);
+
+  const { data } = supabase.storage.from("dnis").getPublicUrl(path);
+  return data.publicUrl;
+};
+
+export const approveDocuments = async (email) => {
+  const onboarding = await onboardingRepository.getOnboardingByEmail(email);
+
+  if (!onboarding) {
+    throw new AppError(
+      "No se encontró un proceso de onboarding para este email",
+      404,
+    );
+  }
+
+  if (onboarding.status !== "documents_pending_review") {
+    throw new AppError("El proceso de onboarding no está pendiente", 400);
+  }
+
+  const verifiedOnboarding = await onboardingRepository.updateOnboardingStatus(
+    email,
+    "documents_approved",
+  );
+
+  if (!verifiedOnboarding) {
+    throw new AppError("No se pudo aprobar los documentos", 500);
+  }
+
+  await sendEmail(email, "ACCOUNT_APPROVED");
 
   return {
     email: verifiedOnboarding.email,
