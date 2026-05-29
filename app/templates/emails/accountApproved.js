@@ -59,7 +59,6 @@ const accountApproved = (loginUrl) => ({
                     margin-bottom:20px;
                   "
                 >
-                  ✅
                 </div>
 
                 <h2
@@ -100,7 +99,7 @@ const accountApproved = (loginUrl) => ({
                 <div
                   style="
                     background:#FAF7EF;
-                    border-left:4px solid #C8A64B;
+                    border-left:4px solid #E8B439;
                     border-radius:8px;
                     padding:18px;
                     margin-bottom:32px;
@@ -118,7 +117,7 @@ const accountApproved = (loginUrl) => ({
                     href="${loginUrl}"
                     style="
                       display:inline-block;
-                      background:#C8A64B;
+                      background:#E8B439;
                       color:#ffffff;
                       text-decoration:none;
                       padding:14px 32px;

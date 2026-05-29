@@ -78,7 +78,7 @@ const verificationCode = ({ code }) => ({
                 <div
                   style="
                     background:#FAF7EF;
-                    border:2px solid #C8A64B;
+                    border:2px solid #E8B439;
                     border-radius:12px;
                     padding:28px;
                     text-align:center;
