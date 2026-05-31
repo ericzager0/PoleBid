@@ -74,7 +74,7 @@ export const saveDocuments = async (onboardingId, documentData) => {
   }
 };
 
-async function completeOnboarding(email, password) {
+export const completeOnboarding = async (email, password) => {
   const { data, error } = await supabase
     .from("onboardings")
     .update({
@@ -89,4 +89,4 @@ async function completeOnboarding(email, password) {
   }
 
   return data;
-}
+};
