@@ -1,5 +1,5 @@
 import AppError from "../utils/appError.js";
-import onboardingRepository from "../repositories/onboarding.repository.js";
+import * as onboardingRepository from "../repositories/onboarding.repository.js";
 import { hashPassword } from "../utils/password.js";
 
 export const register = async (email, password) => {
