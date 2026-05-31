@@ -3,7 +3,7 @@ import { supabase } from "../config/supabase.config.js";
 export const getOnboardingByEmail = async (email) => {
   const { data, error } = await supabase
     .from("onboardings")
-    .select("id, email, status, code")
+    .select("id, email, status, code, password")
     .eq("email", email)
     .maybeSingle();
 
