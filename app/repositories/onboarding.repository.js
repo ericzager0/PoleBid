@@ -58,9 +58,6 @@ export const updateOnboardingStatus = async (email, status) => {
 };
 
 export const saveDocuments = async (onboardingId, documentData) => {
-  console.log("Guardando documentos para onboardingId:", onboardingId);
-  console.log("Datos del documento:", documentData);
-
   const { error } = await supabase.from("onboarding_documents").insert({
     id: onboardingId,
     first_name: documentData.firstName,
@@ -76,3 +73,20 @@ export const saveDocuments = async (onboardingId, documentData) => {
     throw error;
   }
 };
+
+async function completeOnboarding(email, password) {
+  const { data, error } = await supabase
+    .from("onboardings")
+    .update({
+      status: "registered",
+      password: password,
+    })
+    .eq("email", email)
+    .select();
+
+  if (error) {
+    throw new Error(`Error al actualizar onboarding: ${error.message}`);
+  }
+
+  return data;
+}
