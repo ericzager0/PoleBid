@@ -6,6 +6,7 @@ import { mountSwaggerUI } from "./app/middlewares/swagger.setup.js";
 import devRoutes from "./app/routes/dev.route.js";
 import authRoutes from "./app/routes/auth.route.js";
 import onboardingRoutes from "./app/routes/onboarding.route.js";
+import userRoutes from "./app/routes/user.route.js";
 
 const app = express();
 
@@ -22,6 +23,7 @@ async function start() {
   app.use("/api/dev", devRoutes);
   app.use("/api/auth", authRoutes);
   app.use("/api/onboarding", onboardingRoutes);
+  app.use("/api/users", userRoutes);
 
   app.all(/(.*)/, (req, res, next) => {
     next(
