@@ -1,9 +1,11 @@
 import verificationCode from "../templates/emails/verificationCode.js";
 import accountApproved from "../templates/emails/accountApproved.js";
+import accountRejected from "../templates/emails/accountRejected.js";
 
 const templates = {
   VERIFICATION_CODE: verificationCode,
   ACCOUNT_APPROVED: accountApproved,
+  ACCOUNT_REJECTED: accountRejected,
 };
 
 export async function sendEmail(to, templateName, data = {}) {

@@ -143,3 +143,34 @@ export const approveDocuments = async (email) => {
     status: verifiedOnboarding.status,
   };
 };
+
+export const rejectDocuments = async (email) => {
+  const onboarding = await onboardingRepository.getOnboardingByEmail(email);
+
+  if (!onboarding) {
+    throw new AppError(
+      "No se encontró un proceso de onboarding para este email",
+      404,
+    );
+  }
+
+  if (onboarding.status !== "documents_pending_review") {
+    throw new AppError("El proceso de onboarding no está pendiente", 400);
+  }
+
+  const verifiedOnboarding = await onboardingRepository.updateOnboardingStatus(
+    email,
+    "documents_rejected",
+  );
+
+  if (!verifiedOnboarding) {
+    throw new AppError("No se pudo rechazar los documentos", 500);
+  }
+
+  await sendEmail(email, "ACCOUNT_REJECTED");
+
+  return {
+    email: verifiedOnboarding.email,
+    status: verifiedOnboarding.status,
+  };
+};

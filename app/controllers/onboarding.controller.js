@@ -101,3 +101,15 @@ export const approveDocuments = catchAsync(async (req, res, next) => {
     status: "success",
   });
 });
+
+export const rejectDocuments = catchAsync(async (req, res, next) => {
+  // Verificar con el token que sea un admin quien este llamado.
+
+  const email = requireString(req.body.email, "email");
+
+  const result = await onboardingService.rejectDocuments(email);
+
+  res.status(200).json({
+    status: "success",
+  });
+});

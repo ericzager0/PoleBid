@@ -16,5 +16,6 @@ router.post(
   onboardingController.uploadDocuments,
 );
 router.post("/approve-documents", onboardingController.approveDocuments);
+router.post("/reject-documents", onboardingController.rejectDocuments);
 
 export default router;
