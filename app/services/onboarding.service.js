@@ -1,5 +1,6 @@
 import AppError from "../utils/appError.js";
 import * as onboardingRepository from "../repositories/onboarding.repository.js";
+import * as clientRepository from "../repositories/client.repository.js";
 import { sendEmail } from "../services/email.service.js";
 import { supabase } from "../config/supabase.config.js";
 
@@ -113,7 +114,7 @@ const uploadToStorage = async (file, path) => {
   return data.publicUrl;
 };
 
-export const approveDocuments = async (email) => {
+export const approveDocuments = async (email, empleadoId, documento, categoria) => {
   const onboarding = await onboardingRepository.getOnboardingByEmail(email);
 
   if (!onboarding) {
@@ -131,6 +132,11 @@ export const approveDocuments = async (email) => {
     email,
     "documents_approved",
   );
+
+  // Crear persona y crear cliente
+  const documents = await onboardingRepository.getOnboardingDocumentsById(onboarding.id);
+
+  await clientRepository.createClient(documents.direccion, documento, documents.nombre, documents.numeropais, empleadoId, categoria);
 
   if (!verifiedOnboarding) {
     throw new AppError("No se pudo aprobar los documentos", 500);

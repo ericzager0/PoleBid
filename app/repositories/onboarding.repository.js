@@ -90,3 +90,28 @@ export const completeOnboarding = async (email, password) => {
 
   return data;
 };
+
+export const getOnboardingDocumentsById = async (id) => {
+  const { data, error } = await supabase
+    .from("onboarding_documents")
+    .select("id, first_name, last_name, country_id, address")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  // Si no se encuentra el documento, retorna null de forma segura
+  if (!data) {
+    return null;
+  }
+
+  // Retornamos el objeto con la estructura solicitada
+  return {
+    id: data.id,
+    nombre: [data.first_name, data.last_name].filter(Boolean).join(" "), 
+    numeropais: data.country_id,
+    direccion: data.address
+  };
+};

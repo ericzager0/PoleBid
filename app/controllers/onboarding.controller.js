@@ -91,9 +91,14 @@ export const uploadDocuments = catchAsync(async (req, res) => {
 });
 
 export const approveDocuments = catchAsync(async (req, res, next) => {
-  // Verificar con el token que sea un admin quien este llamado.
-
+  
   const email = requireString(req.body.email, "email");
+
+  const empleadoId = requireString(req.body.empleadoId, "empleadoId");
+
+  const documento = requireString(req.body.documento, "documento");
+
+  const categoria = requireString(req.body.categoria, "categoria");
 
   const result = await onboardingService.approveDocuments(email);
 
