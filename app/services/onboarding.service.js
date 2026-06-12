@@ -32,7 +32,7 @@ export const getOnboardingStatus = async (email) => {
   }
 
   if (onboarding.status === "documents_approved") {
-    const user = userRepository.getUserById(onboarding.id);
+    const user = await userRepository.getUserById(onboarding.id);
 
     return {
       status: onboarding.status,

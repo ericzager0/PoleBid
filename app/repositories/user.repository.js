@@ -11,13 +11,15 @@ export const getUserById = async (id) => {
         first_name,
         last_name
       ),
-      personas (
+      clientes (
         categoria
       )
     `,
     )
     .eq("id", id)
     .maybeSingle();
+
+  console.log("error - data:", error);
 
   if (error) {
     throw error;
@@ -30,6 +32,6 @@ export const getUserById = async (id) => {
     email: data.email,
     firstName: data.onboarding_documents?.first_name ?? null,
     lastName: data.onboarding_documents?.last_name ?? null,
-    categoria: data.personas?.categoria ?? null,
+    categoria: data.clientes?.categoria ?? null,
   };
 };
