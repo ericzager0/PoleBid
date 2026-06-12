@@ -27,3 +27,16 @@ export const addCard = async (
 
   return data;
 };
+
+export const getPaymentMethodsByClientId = async (clientId) => {
+  const { data: cards, error } = await supabase
+    .from("cards")
+    .select("*")
+    .eq("client_id", clientId);
+
+  if (error) {
+    throw new Error("Error al obtener los métodos de pago: " + error.message);
+  }
+
+  return { cards };
+};
