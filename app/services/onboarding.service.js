@@ -114,7 +114,12 @@ const uploadToStorage = async (file, path) => {
   return data.publicUrl;
 };
 
-export const approveDocuments = async (email, empleadoId, documento, categoria) => {
+export const approveDocuments = async (
+  email,
+  empleadoId,
+  documento,
+  categoria,
+) => {
   const onboarding = await onboardingRepository.getOnboardingByEmail(email);
 
   if (!onboarding) {
@@ -133,16 +138,26 @@ export const approveDocuments = async (email, empleadoId, documento, categoria) 
     "documents_approved",
   );
 
-  // Crear persona y crear cliente
-  const documents = await onboardingRepository.getOnboardingDocumentsById(onboarding.id);
+  // obtengo los datos del cliente
+  const documents = await onboardingRepository.getOnboardingDocumentsById(
+    onboarding.id,
+  );
 
-  await clientRepository.createClient(documents.direccion, documento, documents.nombre, documents.numeropais, empleadoId, categoria);
+  // creo el cliente (incluye crear la persona)
+  await clientRepository.createClient(
+    documents.direccion,
+    documento,
+    documents.nombre,
+    documents.numeropais,
+    empleadoId,
+    categoria,
+  );
 
   if (!verifiedOnboarding) {
     throw new AppError("No se pudo aprobar los documentos", 500);
   }
 
-  await sendEmail(email, "ACCOUNT_APPROVED");
+  await sendEmail(email, "ACCOUNT_APPROVED", { categoria });
 
   return {
     email: verifiedOnboarding.email,

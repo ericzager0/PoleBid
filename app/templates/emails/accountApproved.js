@@ -1,7 +1,44 @@
-const accountApproved = (loginUrl) => ({
-  subject: "¡Tu cuenta fue aprobada en PoleBid!",
+const categoryStyles = {
+  comun: {
+    label: "Común",
+    bg: "#F3F4F6",
+    color: "#6B7280",
+    border: "#D1D5DB",
+  },
+  especial: {
+    label: "Especial",
+    bg: "#EFF6FF",
+    color: "#2563EB",
+    border: "#93C5FD",
+  },
+  plata: {
+    label: "Plata",
+    bg: "#F1F5F9",
+    color: "#64748B",
+    border: "#CBD5E1",
+  },
+  oro: {
+    label: "Oro",
+    bg: "#FFF8E1",
+    color: "#B7791F",
+    border: "#E8B439",
+  },
+  platino: {
+    label: "Platino",
+    bg: "#F8FAFC",
+    color: "#475569",
+    border: "#94A3B8",
+  },
+};
 
-  html: `
+const accountApproved = (data) => {
+  const { categoria } = data;
+  const style = categoryStyles[categoria] || categoryStyles.comun;
+
+  return {
+    subject: "¡Tu cuenta fue aprobada en PoleBid!",
+
+    html: `
   <!DOCTYPE html>
   <html>
   <head>
@@ -84,6 +121,36 @@ const accountApproved = (loginUrl) => ({
                   Tu solicitud fue revisada y aprobada exitosamente.
                 </p>
 
+                <!-- CATEGORÍA ASIGNADA -->
+                <div style="text-align:center; margin-bottom:24px;">
+                  <p
+                    style="
+                      margin:0 0 10px;
+                      color:#999;
+                      font-size:13px;
+                      text-transform:uppercase;
+                      letter-spacing:1px;
+                    "
+                  >
+                    Categoría asignada
+                  </p>
+                  <span
+                    style="
+                      display:inline-block;
+                      background:${style.bg};
+                      color:${style.color};
+                      border:1px solid ${style.border};
+                      border-radius:20px;
+                      padding:8px 24px;
+                      font-size:16px;
+                      font-weight:bold;
+                      letter-spacing:0.5px;
+                    "
+                  >
+                    ${style.label}
+                  </span>
+                </div>
+
                 <p
                   style="
                     margin:0 0 32px;
@@ -93,7 +160,7 @@ const accountApproved = (loginUrl) => ({
                     line-height:26px;
                   "
                 >
-                  Ya podés ingresar a la plataforma y comenzar a participar en las próximas subastas.
+                  Ya podés ingresar a la app y comenzar a participar en las próximas subastas.
                 </p>
 
                 <div
@@ -110,24 +177,6 @@ const accountApproved = (loginUrl) => ({
                 >
                   <strong>Próximo paso:</strong><br>
                   Completá tu perfil y explorá las oportunidades disponibles dentro de PoleBid.
-                </div>
-
-                <div style="text-align:center;">
-                  <a
-                    href="${loginUrl}"
-                    style="
-                      display:inline-block;
-                      background:#E8B439;
-                      color:#ffffff;
-                      text-decoration:none;
-                      padding:14px 32px;
-                      border-radius:8px;
-                      font-size:16px;
-                      font-weight:bold;
-                    "
-                  >
-                    Ingresar a PoleBid
-                  </a>
                 </div>
 
               </td>
@@ -160,6 +209,7 @@ const accountApproved = (loginUrl) => ({
   </body>
   </html>
   `,
-});
+  };
+};
 
 export default accountApproved;

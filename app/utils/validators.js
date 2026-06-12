@@ -1,3 +1,5 @@
+import AppError from "./appError.js";
+
 export const requireString = (value, fieldName) => {
   if (!value || typeof value !== "string" || !value.trim()) {
     throw new AppError(`El campo ${fieldName} es obligatorio`, 400);

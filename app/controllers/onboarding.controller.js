@@ -91,16 +91,17 @@ export const uploadDocuments = catchAsync(async (req, res) => {
 });
 
 export const approveDocuments = catchAsync(async (req, res, next) => {
-  
   const email = requireString(req.body.email, "email");
-
-  const empleadoId = requireString(req.body.empleadoId, "empleadoId");
-
+  const empleadoId = requireNumber(req.body.empleadoId, "empleadoId");
   const documento = requireString(req.body.documento, "documento");
-
   const categoria = requireString(req.body.categoria, "categoria");
 
-  const result = await onboardingService.approveDocuments(email);
+  const result = await onboardingService.approveDocuments(
+    email,
+    empleadoId,
+    documento,
+    categoria,
+  );
 
   res.status(200).json({
     status: "success",
