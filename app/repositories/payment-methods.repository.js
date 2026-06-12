@@ -1,6 +1,13 @@
 import { supabase } from "../config/supabase.config.js";
 
-export const addCard = async (clientId, lastFour, expMonth, expYear, brand) => {
+export const addCard = async (
+  clientId,
+  lastFour,
+  expMonth,
+  expYear,
+  brand,
+  owner,
+) => {
   const { data, error } = await supabase
     .from("cards")
     .insert({
@@ -9,6 +16,7 @@ export const addCard = async (clientId, lastFour, expMonth, expYear, brand) => {
       exp_month: expMonth,
       exp_year: expYear,
       brand: brand,
+      owner: owner,
     })
     .select("id")
     .maybeSingle();

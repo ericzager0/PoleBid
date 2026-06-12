@@ -1,7 +1,7 @@
 import * as paymentMethodsRepository from "../repositories/payment-methods.repository.js";
 import * as userRepository from "../repositories/user.repository.js";
 
-export const addCard = async (number, expMonth, expYear, userId) => {
+export const addCard = async (number, expMonth, expYear, owner, userId) => {
   const lastFour = number.slice(-4);
   const brand = getCardBrand(number);
 
@@ -14,6 +14,7 @@ export const addCard = async (number, expMonth, expYear, userId) => {
     expMonth,
     expYear,
     brand,
+    owner,
   );
 };
 
