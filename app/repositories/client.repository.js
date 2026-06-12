@@ -33,8 +33,6 @@ export const createClient = async (
     .select("identificador")
     .maybeSingle();
 
-  console.log("cliente creado:", data, "error:", error);
-
   if (error) {
     throw error;
   }
