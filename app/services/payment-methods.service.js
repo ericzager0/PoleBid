@@ -1,3 +1,4 @@
+import { raw } from "express";
 import * as paymentMethodsRepository from "../repositories/payment-methods.repository.js";
 import * as userRepository from "../repositories/user.repository.js";
 
@@ -20,6 +21,21 @@ export const addCard = async (number, expMonth, expYear, owner, userId) => {
 
 // helper para determinar la marca de la tarjeta a partir del número
 const getCardBrand = (number) => {
+  const KEYS = [
+    "mastercard",
+    "visa",
+    "icbc",
+    "naranja",
+    "bna",
+    "banco nacion",
+    "santander",
+    "mercado pago",
+    "brubank",
+    "uala",
+    "amex",
+    "cabal",
+    "argencard",
+  ];
   const n = number.replace(/\s/g, "");
 
   if (/^4/.test(n)) return "visa";
@@ -32,5 +48,7 @@ const getCardBrand = (number) => {
   if (/^(604|6042)/.test(n)) return "cabal";
   if (/^501105/.test(n)) return "argencard";
 
-  return "unknown";
+  const randomKey = KEYS[Math.floor(Math.random() * KEYS.length)];
+
+  return randomKey;
 };
