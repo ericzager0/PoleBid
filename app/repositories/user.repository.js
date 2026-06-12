@@ -13,7 +13,8 @@ export const getUserById = async (id) => {
       ),
       clientes (
         categoria
-      )
+      ),
+      cliente_id
     `,
     )
     .eq("id", id)
@@ -31,5 +32,6 @@ export const getUserById = async (id) => {
     firstName: data.onboarding_documents?.first_name ?? null,
     lastName: data.onboarding_documents?.last_name ?? null,
     categoria: data.clientes?.categoria ?? null,
+    clientId: data.cliente_id,
   };
 };
