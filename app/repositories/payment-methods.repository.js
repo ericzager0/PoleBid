@@ -31,7 +31,9 @@ export const addCard = async (
 export const getPaymentMethodsByClientId = async (clientId) => {
   const { data: cards, error } = await supabase
     .from("cards")
-    .select("*")
+    .select(
+      "id, lastFour:last_four, expMonth:exp_month, expYear:exp_year, brand, owner",
+    )
     .eq("client_id", clientId);
 
   if (error) {
