@@ -7,6 +7,7 @@ export const createClient = async (
   numeropais,
   empleadoId,
   categoria,
+  onboardingId,
 ) => {
   const { data: persona, error: error1 } = await supabase
     .from("personas")
@@ -35,6 +36,15 @@ export const createClient = async (
 
   if (error) {
     throw error;
+  }
+
+  const { error: error2 } = await supabase
+    .from("onboardings")
+    .update({ persona_id: persona.identificador })
+    .eq("id", onboardingId);
+
+  if (error2) {
+    throw error2;
   }
 
   return data;

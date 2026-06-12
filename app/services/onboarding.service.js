@@ -1,6 +1,7 @@
 import AppError from "../utils/appError.js";
 import * as onboardingRepository from "../repositories/onboarding.repository.js";
 import * as clientRepository from "../repositories/client.repository.js";
+import * as userRepository from "../repositories/user.repository.js";
 import { sendEmail } from "../services/email.service.js";
 import { supabase } from "../config/supabase.config.js";
 
@@ -30,7 +31,16 @@ export const getOnboardingStatus = async (email) => {
     );
   }
 
-  return onboarding.status;
+  if (onboarding.status === "documents_approved") {
+    const user = userRepository.getUserById(onboarding.id);
+
+    return {
+      status: onboarding.status,
+      categoria: user.categoria,
+    };
+  }
+
+  return { status: onboarding.status };
 };
 
 export const verifyEmail = async (email, code) => {
@@ -143,7 +153,7 @@ export const approveDocuments = async (
     onboarding.id,
   );
 
-  // creo el cliente (incluye crear la persona)
+  // creo el cliente (incluye crear la persona y agregar la referencia al onboarding)
   await clientRepository.createClient(
     documents.direccion,
     documento,
@@ -151,6 +161,7 @@ export const approveDocuments = async (
     documents.numeropais,
     empleadoId,
     categoria,
+    onboarding.id,
   );
 
   if (!verifiedOnboarding) {

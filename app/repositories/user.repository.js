@@ -10,6 +10,9 @@ export const getUserById = async (id) => {
       onboarding_documents (
         first_name,
         last_name
+      ),
+      personas (
+        categoria
       )
     `,
     )
@@ -27,5 +30,6 @@ export const getUserById = async (id) => {
     email: data.email,
     firstName: data.onboarding_documents?.first_name ?? null,
     lastName: data.onboarding_documents?.last_name ?? null,
+    categoria: data.personas?.categoria ?? null,
   };
 };

@@ -27,13 +27,11 @@ export const getOnboardingStatus = catchAsync(async (req, res, next) => {
     throw new AppError("El campo email es obligatorio", 400);
   }
 
-  const status = await onboardingService.getOnboardingStatus(email.trim());
+  const data = await onboardingService.getOnboardingStatus(email.trim());
 
   res.status(200).json({
     status: "success",
-    data: {
-      status,
-    },
+    data,
   });
 });
 
