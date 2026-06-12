@@ -25,6 +25,10 @@ async function start() {
   app.use("/api/onboarding", onboardingRoutes);
   app.use("/api/users", userRoutes);
 
+  app.get("/", (req, res) => {
+    res.json({ message: "API is running" });
+  });
+
   app.all(/(.*)/, (req, res, next) => {
     next(
       new Error(
