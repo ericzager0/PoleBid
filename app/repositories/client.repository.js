@@ -40,7 +40,7 @@ export const createClient = async (
 
   const { error: error2 } = await supabase
     .from("onboardings")
-    .update({ persona_id: persona.identificador })
+    .update({ cliente_id: persona.identificador })
     .eq("id", onboardingId);
 
   if (error2) {

@@ -19,8 +19,6 @@ export const getUserById = async (id) => {
     .eq("id", id)
     .maybeSingle();
 
-  console.log("error - data:", error);
-
   if (error) {
     throw error;
   }
