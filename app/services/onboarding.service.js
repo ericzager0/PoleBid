@@ -153,6 +153,17 @@ export const approveDocuments = async (
     onboarding.id,
   );
 
+  // ✅ Correcto
+  console.log("Creando cliente con los siguientes datos:", {
+    direccion: documents.direccion,
+    documento,
+    nombre: documents.nombre,
+    numeropais: documents.numeropais,
+    empleadoId,
+    categoria,
+    onboardingId: onboarding.id,
+  });
+
   // creo el cliente (incluye crear la persona y agregar la referencia al onboarding)
   await clientRepository.createClient(
     documents.direccion,
