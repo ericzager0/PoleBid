@@ -1,5 +1,19 @@
 import { supabase } from "../config/supabase.config.js";
 
+export const getClientIdByUserId = async (userId) => {
+  const { data, error } = await supabase
+    .from("onboardings")
+    .select("cliente_id")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data?.cliente_id ?? null;
+};
+
 export const getUserById = async (id) => {
   const { data, error } = await supabase
     .from("onboardings")

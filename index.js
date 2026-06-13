@@ -8,6 +8,7 @@ import authRoutes from "./app/routes/auth.route.js";
 import onboardingRoutes from "./app/routes/onboarding.route.js";
 import userRoutes from "./app/routes/user.route.js";
 import paymentMethodsRoutes from "./app/routes/payment-methods.route.js";
+import productsRoutes from "./app/routes/products.route.js";
 
 const app = express();
 
@@ -26,6 +27,7 @@ async function start() {
   app.use("/api/onboarding", onboardingRoutes);
   app.use("/api/users", userRoutes);
   app.use("/api/payment-methods", paymentMethodsRoutes);
+  app.use("/api/products", productsRoutes);
   app.get("/", (req, res) => {
     res.json({ message: "API is running" });
   });
