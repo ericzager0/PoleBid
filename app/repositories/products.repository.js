@@ -1,5 +1,44 @@
 import { supabase } from "../config/supabase.config.js";
 
+export const getProducts = async (clientId) => {
+  const { data, error } = await supabase
+    .from("productos")
+    .select(
+      `
+      *,
+      fotos (
+        identificador,
+        foto
+      )
+    `,
+    )
+    .eq("duenio", clientId);
+
+  if (error) throw error;
+
+  const productIds = data.map((p) => p.identificador);
+
+  const { data: estados, error: errorEstados } = await supabase
+    .from("product_states")
+    .select("identificador, estado")
+    .in("identificador", productIds);
+
+  if (errorEstados) throw errorEstados;
+
+  const estadoMap = Object.fromEntries(
+    estados.map((e) => [e.identificador, e.estado]),
+  );
+
+  return data.map((producto) => ({
+    ...producto,
+    fotos: producto.fotos.map((f) => ({
+      id: f.identificador,
+      foto: Buffer.from(f.foto).toString("base64"),
+    })),
+    estado: estadoMap[producto.identificador] ?? null,
+  }));
+};
+
 export const addProduct = async (
   clientId,
   descripcioncatalogo,
@@ -14,6 +53,7 @@ export const addProduct = async (
   const { data, error } = await supabase
     .from("productos")
     .insert({
+      fecha: new Date().toISOString(),
       descripcioncatalogo,
       descripcioncompleta,
       disponible: "no",
