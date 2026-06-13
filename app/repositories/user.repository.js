@@ -37,6 +37,18 @@ export const getUserById = async (id) => {
     throw error2;
   }
 
+  const { data: owner, error: error3 } = await supabase
+    .from("duenios")
+    .select("identificador")
+    .eq("identificador", data.cliente_id)
+    .maybeSingle();
+
+  const isSeller = !!owner;
+
+  if (error3) {
+    throw error3;
+  }
+
   return {
     id: data.id,
     email: data.email,
@@ -47,6 +59,7 @@ export const getUserById = async (id) => {
     clientId: data.cliente_id,
     documento: persona?.documento ?? null,
     direccion: persona?.direccion ?? null,
+    isSeller,
   };
 };
 
