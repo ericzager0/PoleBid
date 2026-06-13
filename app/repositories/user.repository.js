@@ -12,7 +12,8 @@ export const getUserById = async (id) => {
         last_name
       ),
       clientes (
-        categoria
+        categoria,
+        numeropais
       ),
       cliente_id
     `,
@@ -26,12 +27,25 @@ export const getUserById = async (id) => {
 
   if (!data) return null;
 
+  const { data: persona, error: error2 } = await supabase
+    .from("personas")
+    .select("direccion, documento")
+    .eq("identificador", data.cliente_id)
+    .maybeSingle();
+
+  if (error2) {
+    throw error2;
+  }
+
   return {
     id: data.id,
     email: data.email,
     firstName: data.onboarding_documents?.first_name ?? null,
     lastName: data.onboarding_documents?.last_name ?? null,
     categoria: data.clientes?.categoria ?? null,
+    numeropais: data.clientes?.numeropais ?? null,
     clientId: data.cliente_id,
+    documento: persona?.documento ?? null,
+    direccion: persona?.direccion ?? null,
   };
 };
