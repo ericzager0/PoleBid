@@ -49,3 +49,9 @@ export const getUserById = async (id) => {
     direccion: persona?.direccion ?? null,
   };
 };
+
+export const approveAsSeller = async (clientId, empleadoId) => {
+  const { data, error } = await supabase
+    .from("duenios")
+    .insert({ identificador: clientId, verificador: empleadoId });
+};

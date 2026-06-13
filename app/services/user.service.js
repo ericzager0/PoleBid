@@ -10,3 +10,7 @@ export const getMe = async (userId) => {
   if (!user) throw new Error("Usuario no encontrado");
   return { ...user, paymentMethods };
 };
+
+export const approveAsSeller = async (clientId, empleadoId) => {
+  await userRepository.approveAsSeller(clientId, empleadoId);
+};
