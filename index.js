@@ -27,7 +27,7 @@ async function start() {
   app.use("/api/onboarding", onboardingRoutes);
   app.use("/api/users", userRoutes);
   app.use("/api/payment-methods", paymentMethodsRoutes);
-  app.use("/api/products", productsRoutes);
+  app.use("/api/me/items", productsRoutes);
   app.get("/", (req, res) => {
     res.json({ message: "API is running" });
   });
