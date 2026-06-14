@@ -45,13 +45,17 @@ export const getProducts = async (clientId) => {
 
   const { data: estados, error: errorEstados } = await supabase
     .from("product_states")
-    .select("identificador, estado")
+    .select("identificador, estado, motivo_rechazo")
     .in("identificador", productIds);
 
   if (errorEstados) throw errorEstados;
 
   const estadoMap = Object.fromEntries(
     estados.map((e) => [e.identificador, e.estado]),
+  );
+
+  const motivoRechazoMap = Object.fromEntries(
+    estados.map((e) => [e.identificador, e.motivo_rechazo]),
   );
 
   return data.map((producto) => ({
@@ -91,6 +95,7 @@ export const getProducts = async (clientId) => {
       };
     }),
     estado: estadoMap[producto.identificador] ?? null,
+    motivo_rechazo: motivoRechazoMap[producto.identificador] ?? null,
   }));
 };
 
