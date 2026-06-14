@@ -31,10 +31,40 @@ export const getProducts = async (clientId) => {
 
   return data.map((producto) => ({
     ...producto,
-    fotos: producto.fotos.map((f) => ({
-      id: f.identificador,
-      foto: Buffer.from(f.foto).toString("base64"),
-    })),
+    fotos: producto.fotos.map((f) => {
+      let base64Real = "";
+
+      try {
+        // 1. Verificamos si viene en el formato Hex de Postgres (\x...)
+        if (typeof f.foto === "string" && f.foto.startsWith("\\x")) {
+          // 2. Le sacamos el \x y lo decodificamos de Hexadecimal a String normal
+          const stringJson = Buffer.from(
+            f.foto.replace("\\x", ""),
+            "hex",
+          ).toString("utf-8");
+
+          // 3. Ese string es literalmente '{"type":"Buffer","data":[255, 216...]}'. Lo parseamos:
+          const parsedData = JSON.parse(stringJson);
+
+          // 4. Ahora sí, agarramos el array 'data' (los bytes reales) y lo pasamos a Base64 puro
+          base64Real = Buffer.from(parsedData.data).toString("base64");
+        } else {
+          // Fallback por si la foto ya viene limpia o si arreglan el proceso de guardado en el futuro
+          base64Real = Buffer.from(f.foto).toString("base64");
+        }
+      } catch (e) {
+        console.error(
+          "Error procesando imagen para el producto",
+          producto.identificador,
+          e,
+        );
+      }
+
+      return {
+        id: f.identificador,
+        foto: base64Real,
+      };
+    }),
     estado: estadoMap[producto.identificador] ?? null,
   }));
 };
