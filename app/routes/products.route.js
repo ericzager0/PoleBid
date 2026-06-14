@@ -19,4 +19,6 @@ router.post(
   productsController.newProduct,
 );
 
+router.patch("/:id", authMiddleware, productsController.updateProduct);
+
 export default router;

@@ -1,6 +1,32 @@
 import * as userRepository from "../repositories/user.repository.js";
 import * as productsRepository from "../repositories/products.repository.js";
 
+export const updateProduct = async (userId, productId, estado) => {
+  const product = await productsRepository.getProductById(productId);
+
+  if (!product) {
+    const error = new Error("Producto no encontrado");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const clientId = await userRepository.getClientIdByUserId(userId);
+
+  if (product.duenio !== clientId) {
+    const error = new Error("No tienes permiso para actualizar este producto");
+    error.statusCode = 403;
+    throw error;
+  }
+
+  if (product.estado === "interested" && estado === "in_inspection") {
+    await productsRepository.updateProductState(productId, estado);
+  } else {
+    const error = new Error("Combinacion erronea de cambio de estado.");
+    error.statusCode = 403;
+    throw error;
+  }
+};
+
 export const addProduct = async (
   userId,
   descripcioncatalogo,

@@ -1,5 +1,30 @@
 import { supabase } from "../config/supabase.config.js";
 
+export const getProductById = async (productId) => {
+  const { data, error } = await supabase
+    .from("productos")
+    .select("*, product_states(estado)")
+    .eq("identificador", productId)
+    .single();
+
+  if (error) throw error;
+
+  return {
+    ...data,
+    estado: data.product_states?.estado,
+    product_states: undefined,
+  };
+};
+
+export const updateProductState = async (productId, estado) => {
+  const { error } = await supabase
+    .from("product_states")
+    .update({ estado })
+    .eq("identificador", productId);
+
+  if (error) throw error;
+};
+
 export const getProducts = async (clientId) => {
   const { data, error } = await supabase
     .from("productos")
