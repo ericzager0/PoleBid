@@ -21,4 +21,7 @@ router.post(
 
 router.patch("/:id", authMiddleware, productsController.updateProduct);
 
+// falta darle el controller.
+router.get("/:id", authMiddleware, productsController.getProduct);
+
 export default router;

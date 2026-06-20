@@ -123,6 +123,114 @@ export const getProducts = async (clientId) => {
   }));
 };
 
+export const getFullProductById = async (productId) => {
+  const { data, error } = await supabase
+    .from("productos")
+    .select(
+      `
+      *,
+      fotos (
+        identificador,
+        foto
+      )
+    `,
+    )
+    .eq("identificador", productId)
+    .single();
+
+  if (error) throw error;
+
+  const { data: estado, error: errorEstado } = await supabase
+    .from("product_states")
+    .select("identificador, estado, motivo_rechazo")
+    .eq("identificador", productId)
+    .single();
+
+  if (errorEstado) throw errorEstado;
+
+  // 1. Buscar el item de catalogo correspondiente a este producto
+  const { data: item, error: errorItem } = await supabase
+    .from("itemscatalogo")
+    .select("preciobase, comision, catalogo")
+    .eq("producto", productId)
+    .maybeSingle();
+
+  if (errorItem) throw errorItem;
+
+  // 2. Buscar el catalogo correspondiente (para obtener la subasta y la descripcion)
+  let catalogoData = null;
+  if (item?.catalogo != null) {
+    const { data, error: errorCatalogo } = await supabase
+      .from("catalogos")
+      .select("subasta, descripcion")
+      .eq("identificador", item.catalogo)
+      .maybeSingle();
+
+    if (errorCatalogo) throw errorCatalogo;
+    catalogoData = data;
+  }
+
+  // 3. Buscar la subasta correspondiente
+  let subastaData = null;
+  if (catalogoData?.subasta != null) {
+    const { data, error: errorSubasta } = await supabase
+      .from("subastas")
+      .select("fecha, hora, estado, categoria")
+      .eq("identificador", catalogoData.subasta)
+      .maybeSingle();
+
+    if (errorSubasta) throw errorSubasta;
+    subastaData = data;
+  }
+
+  return {
+    ...data,
+    fotos: data.fotos.map((f) => {
+      let base64Real = "";
+
+      try {
+        // 1. Verificamos si viene en el formato Hex de Postgres (\x...)
+        if (typeof f.foto === "string" && f.foto.startsWith("\\x")) {
+          // 2. Le sacamos el \x y lo decodificamos de Hexadecimal a String normal
+          const stringJson = Buffer.from(
+            f.foto.replace("\\x", ""),
+            "hex",
+          ).toString("utf-8");
+
+          // 3. Ese string es literalmente '{"type":"Buffer","data":[255, 216...]}'. Lo parseamos:
+          const parsedData = JSON.parse(stringJson);
+
+          // 4. Ahora sí, agarramos el array 'data' (los bytes reales) y lo pasamos a Base64 puro
+          base64Real = Buffer.from(parsedData.data).toString("base64");
+        } else {
+          // Fallback por si la foto ya viene limpia o si arreglan el proceso de guardado en el futuro
+          base64Real = Buffer.from(f.foto).toString("base64");
+        }
+      } catch (e) {
+        console.error(
+          "Error procesando imagen para el producto",
+          data.identificador,
+          e,
+        );
+      }
+
+      return {
+        id: f.identificador,
+        foto: base64Real,
+      };
+    }),
+    estado: estado?.estado ?? null,
+    motivo_rechazo: estado?.motivo_rechazo ?? null,
+    preciobase: item?.preciobase ?? null,
+    comision: item?.comision ?? null,
+    descripcion: catalogoData?.descripcion ?? null,
+    fecha: subastaData?.fecha ?? null,
+    hora: subastaData?.hora ?? null,
+    estadoSubasta: subastaData?.estado ?? null,
+    categoria: subastaData?.categoria ?? null,
+  };
+};
+
 export const addProduct = async (
   clientId,
   descripcioncatalogo,

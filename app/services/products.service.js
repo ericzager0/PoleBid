@@ -1,6 +1,28 @@
 import * as userRepository from "../repositories/user.repository.js";
 import * as productsRepository from "../repositories/products.repository.js";
 
+export const getProduct = async (userId, productId) => {
+  const product = await productsRepository.getProductById(productId);
+
+  if (!product) {
+    const error = new Error("Producto no encontrado");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const clientId = await userRepository.getClientIdByUserId(userId);
+
+  if (product.duenio !== clientId) {
+    const error = new Error("No tienes permiso para visualizar este producto.");
+    error.statusCode = 403;
+    throw error;
+  }
+
+  const fullProduct = await productsRepository.getFullProductById(productId);
+
+  return fullProduct;
+};
+
 export const updateProduct = async (userId, productId, estado) => {
   const product = await productsRepository.getProductById(productId);
 

@@ -38,3 +38,18 @@ export const updateProduct = catchAsync(async (req, res, next) => {
 
   res.sendStatus(200);
 });
+
+export const getProduct = catchAsync(async (req, res, next) => {
+  // El id del usuario viene del middleware de autenticación, que lo agrega al objeto req.user
+  const userId = req.user.id;
+
+  // El id del producto a actualizar se obtiene de los parámetros de la ruta
+  const { id } = req.params;
+
+  const product = await productsService.getProduct(userId, id);
+
+  res.status(200).json({
+    status: "success",
+    data: product,
+  });
+});
