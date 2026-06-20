@@ -52,3 +52,51 @@ const getCardBrand = (number) => {
 
   return randomKey;
 };
+
+// helper para determinar el banco a partir del CBU/CVU
+const getBankNameByCbu = (cbu) => {
+  const BANKS = [
+    "banco nacion",
+    "santander",
+    "galicia",
+    "bbva",
+    "macro",
+    "brubank",
+    "mercado pago",
+    "uala",
+    "patagonia",
+    "supervielle",
+    "itau",
+    "hsbc",
+    "credicoop",
+  ];
+  const c = cbu.replace(/\s/g, "");
+
+  if (/^011/.test(c)) return "banco nacion";
+  if (/^072/.test(c)) return "santander";
+  if (/^007/.test(c)) return "galicia";
+  if (/^017/.test(c)) return "bbva";
+  if (/^285/.test(c)) return "macro";
+  if (/^143/.test(c)) return "brubank";
+  if (/^000/.test(c)) return "mercado pago";
+
+  const randomBank = BANKS[Math.floor(Math.random() * BANKS.length)];
+
+  return randomBank;
+};
+
+export const addBankAccount = async (cbu, alias, owner, cuitCuil, userId) => {
+  const bankName = getBankNameByCbu(cbu);
+
+  const user = await userRepository.getUserById(userId);
+  const clientId = user.clientId;
+
+  return await paymentMethodsRepository.addBankAccount(
+    clientId,
+    bankName,
+    cbu,
+    alias,
+    owner,
+    cuitCuil,
+  );
+};

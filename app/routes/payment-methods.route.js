@@ -6,4 +6,6 @@ const router = Router();
 
 router.post("/cards", authMiddleware, paymentMethodsController.addCard);
 
+router.post("/bank-accounts", authMiddleware, paymentMethodsController.addBankAccount);
+
 export default router;
