@@ -67,7 +67,42 @@ export const getAuctions = async () => {
   // 4. Armar resultado final
   return auctions.map((auction) => {
     const producto = productoPorCatalogo[auction.idCatalogo] ?? null;
-    const foto = producto !== null ? (fotoPorProducto[producto] ?? null) : null;
+    const fotoRaw =
+      producto !== null ? (fotoPorProducto[producto] ?? null) : null;
+
+    let foto = null;
+
+    if (fotoRaw !== null) {
+      try {
+        let base64Real = "";
+
+        // 1. Verificamos si viene en el formato Hex de Postgres (\x...)
+        if (typeof fotoRaw === "string" && fotoRaw.startsWith("\\x")) {
+          // 2. Le sacamos el \x y lo decodificamos de Hexadecimal a String normal
+          const stringJson = Buffer.from(
+            fotoRaw.replace("\\x", ""),
+            "hex",
+          ).toString("utf-8");
+
+          // 3. Ese string es literalmente '{"type":"Buffer","data":[255, 216...]}'. Lo parseamos:
+          const parsedData = JSON.parse(stringJson);
+
+          // 4. Ahora sí, agarramos el array 'data' (los bytes reales) y lo pasamos a Base64 puro
+          base64Real = Buffer.from(parsedData.data).toString("base64");
+        } else {
+          // Fallback por si la foto ya viene limpia o si arreglan el proceso de guardado en el futuro
+          base64Real = Buffer.from(fotoRaw).toString("base64");
+        }
+
+        foto = base64Real;
+      } catch (e) {
+        console.error(
+          "Error procesando imagen para la subasta",
+          auction.identificador,
+          e,
+        );
+      }
+    }
 
     return {
       ...auction,
