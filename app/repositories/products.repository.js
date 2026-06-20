@@ -224,6 +224,7 @@ export const getFullProductById = async (productId) => {
     preciobase: item?.preciobase ?? null,
     comision: item?.comision ?? null,
     descripcion: catalogoData?.descripcion ?? null,
+    idSubasta: catalogoData?.subasta ?? null,
     fecha: subastaData?.fecha ?? null,
     hora: subastaData?.hora ?? null,
     estadoSubasta: subastaData?.estado ?? null,
