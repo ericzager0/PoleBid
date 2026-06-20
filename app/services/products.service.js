@@ -23,10 +23,12 @@ export const updateProduct = async (userId, productId, estado) => {
     (estado === "scheduled_auction" || estado === "rejected_auction")
   ) {
     await productsRepository.updateProductState(productId, estado);
+    return;
   }
 
   if (product.estado === "interested" && estado === "in_inspection") {
     await productsRepository.updateProductState(productId, estado);
+    return;
   } else {
     const error = new Error("Combinacion erronea de cambio de estado.");
     error.statusCode = 403;
