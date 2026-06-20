@@ -38,7 +38,7 @@ export const getCurrentItem = async (auctionId, userId) => {
   // deberia devolver todos los detalles de ese item, no solo el id. por ejemplo las pujas, el precio base, foto, etc.
   const pujos = await auctionsRepository.getPujosByItemId(currentItemId);
 
-  return { pujos };
+  return { itemId: currentItemId, pujos };
 };
 
 export const placeBid = async (auctionId, itemId, userId, amount) => {

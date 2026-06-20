@@ -23,11 +23,18 @@ export const getAuctionById = catchAsync(async (req, res) => {
 export const getCurrentItem = catchAsync(async (req, res) => {
   const userId = req.user.id;
   const { id } = req.params;
+  const { bidsonly } = req.query;
+
   const currentItem = await auctionsService.getCurrentItem(id, userId);
+
+  const data =
+    bidsonly === "true"
+      ? { itemId: currentItem.itemId, pujos: currentItem.pujos }
+      : currentItem;
 
   res.status(200).json({
     status: "success",
-    data: currentItem,
+    data,
   });
 });
 

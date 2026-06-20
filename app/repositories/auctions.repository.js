@@ -16,34 +16,71 @@ export const getPujosByItemId = async (itemId) => {
     return [];
   }
 
-  // 2. Buscar los timestamps correspondientes a esas pujas
-  const { data: timestamps, error: timestampsError } = await supabase
-    .from("pujos_timestamp")
-    .select("identificador, created_at")
-    .in(
-      "identificador",
-      pujos.map((p) => p.identificador),
-    );
+  const identificadores = pujos.map((p) => p.identificador);
+  const asistenteIds = [...new Set(pujos.map((p) => p.asistente))];
+
+  // 2. Timestamps y asistentes no dependen entre sí, van en paralelo
+  const [
+    { data: timestamps, error: timestampsError },
+    { data: asistentes, error: asistentesError },
+  ] = await Promise.all([
+    supabase
+      .from("pujos_timestamp")
+      .select("identificador, created_at")
+      .in("identificador", identificadores),
+    supabase
+      .from("asistentes")
+      .select("identificador, cliente")
+      .in("identificador", asistenteIds),
+  ]);
 
   if (timestampsError) {
     console.error("Error buscando timestamps:", timestampsError);
     throw timestampsError;
   }
+  if (asistentesError) {
+    console.error("Error buscando asistentes:", asistentesError);
+    throw asistentesError;
+  }
 
-  // 3. Combinar ambos resultados por identificador
+  // 3. Clientes sí depende de los asistentes (necesito sus cliente_id primero)
+  const clienteIds = [...new Set(asistentes.map((a) => a.cliente))];
+
+  const { data: clientes, error: clientesError } = await supabase
+    .from("clientes")
+    .select("identificador, categoria")
+    .in("identificador", clienteIds);
+
+  if (clientesError) {
+    console.error("Error buscando clientes:", clientesError);
+    throw clientesError;
+  }
+
+  // 4. Mapas de lookup
   const timestampMap = new Map(
     timestamps.map((t) => [t.identificador, t.created_at]),
   );
+  const clientePorAsistente = new Map(
+    asistentes.map((a) => [a.identificador, a.cliente]),
+  );
+  const categoriaPorCliente = new Map(
+    clientes.map((c) => [c.identificador, c.categoria]),
+  );
 
-  const result = pujos.map((p) => ({
-    identificador: p.identificador,
-    created_at: timestampMap.get(p.identificador) ?? null,
-    asistente: p.asistente,
-    importe: p.importe,
-    ganador: p.ganador,
-  }));
+  // 5. Combinar todo por puja
+  const result = pujos.map((p) => {
+    const clienteId = clientePorAsistente.get(p.asistente);
+    return {
+      identificador: p.identificador,
+      created_at: timestampMap.get(p.identificador) ?? null,
+      asistente: p.asistente,
+      importe: p.importe,
+      ganador: p.ganador,
+      categoria: categoriaPorCliente.get(clienteId) ?? null,
+    };
+  });
 
-  // 4. Ordenar de más reciente a más antiguo
+  // 6. Ordenar de más reciente a más antiguo
   result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   return result;
