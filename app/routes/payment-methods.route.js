@@ -8,4 +8,7 @@ router.post("/cards", authMiddleware, paymentMethodsController.addCard);
 
 router.post("/bank-accounts", authMiddleware, paymentMethodsController.addBankAccount);
 
+router.post("/checks", authMiddleware, paymentMethodsController.addCheck);
+
+
 export default router;

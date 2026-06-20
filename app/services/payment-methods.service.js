@@ -85,6 +85,24 @@ const getBankNameByCbu = (cbu) => {
   return randomBank;
 };
 
+// helper para determinar el banco a partir del número de cheque (de forma determinista)
+const getBankNameByCheck = (number) => {
+  const BANKS = [
+    "banco nacion",
+    "santander",
+    "galicia",
+    "bbva",
+    "macro",
+    "brubank",
+    "patagonia",
+    "supervielle",
+    "hsbc",
+    "credicoop",
+  ];
+  const index = Number(number) % BANKS.length;
+  return BANKS[isNaN(index) ? 0 : index];
+};
+
 export const addBankAccount = async (cbu, alias, owner, cuitCuil, userId) => {
   const bankName = getBankNameByCbu(cbu);
 
@@ -100,3 +118,20 @@ export const addBankAccount = async (cbu, alias, owner, cuitCuil, userId) => {
     cuitCuil,
   );
 };
+
+export const addCheck = async (number, amount, owner, cuitCuil, userId) => {
+  const bankName = getBankNameByCheck(number);
+
+  const user = await userRepository.getUserById(userId);
+  const clientId = user.clientId;
+
+  return await paymentMethodsRepository.addCheck(
+    clientId,
+    number,
+    bankName,
+    amount,
+    owner,
+    cuitCuil,
+  );
+};
+
