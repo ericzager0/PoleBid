@@ -10,6 +10,7 @@ import userRoutes from "./app/routes/user.route.js";
 import paymentMethodsRoutes from "./app/routes/payment-methods.route.js";
 import productsRoutes from "./app/routes/products.route.js";
 import catalogRoutes from "./app/routes/catalog.route.js";
+import auctionRoutes from "./app/routes/auctions.route.js";
 
 const app = express();
 
@@ -30,6 +31,7 @@ async function start() {
   app.use("/api/payment-methods", paymentMethodsRoutes);
   app.use("/api/me/items", productsRoutes);
   app.use("/api/catalog", catalogRoutes);
+  app.use("/api/auctions", auctionRoutes);
   app.get("/", (req, res) => {
     res.json({ message: "API is running" });
   });
