@@ -19,3 +19,27 @@ export const getAuctionById = catchAsync(async (req, res) => {
     data: auction,
   });
 });
+
+export const getCurrentItem = catchAsync(async (req, res) => {
+  const userId = req.user.id;
+  const { id } = req.params;
+  const currentItem = await auctionsService.getCurrentItem(id, userId);
+
+  res.status(200).json({
+    status: "success",
+    data: currentItem,
+  });
+});
+
+export const placeBid = catchAsync(async (req, res) => {
+  const userId = req.user.id;
+  const { id, itemId } = req.params;
+  const { amount } = req.body;
+
+  await auctionsService.placeBid(id, itemId, userId, amount);
+
+  res.status(200).json({
+    status: "success",
+    message: "Bid placed successfully",
+  });
+});

@@ -1,5 +1,178 @@
 import { supabase } from "../config/supabase.config.js";
 
+export const getPujosByItemId = async (itemId) => {
+  // 1. Buscar las pujas del item
+  const { data: pujos, error: pujosError } = await supabase
+    .from("pujos")
+    .select("identificador, asistente, importe, ganador")
+    .eq("item", itemId);
+
+  if (pujosError) {
+    console.error("Error buscando pujas:", pujosError);
+    throw pujosError;
+  }
+
+  if (!pujos?.length) {
+    return [];
+  }
+
+  // 2. Buscar los timestamps correspondientes a esas pujas
+  const { data: timestamps, error: timestampsError } = await supabase
+    .from("pujos_timestamp")
+    .select("identificador, created_at")
+    .in(
+      "identificador",
+      pujos.map((p) => p.identificador),
+    );
+
+  if (timestampsError) {
+    console.error("Error buscando timestamps:", timestampsError);
+    throw timestampsError;
+  }
+
+  // 3. Combinar ambos resultados por identificador
+  const timestampMap = new Map(
+    timestamps.map((t) => [t.identificador, t.created_at]),
+  );
+
+  const result = pujos.map((p) => ({
+    identificador: p.identificador,
+    created_at: timestampMap.get(p.identificador) ?? null,
+    asistente: p.asistente,
+    importe: p.importe,
+    ganador: p.ganador,
+  }));
+
+  // 4. Ordenar de más reciente a más antiguo
+  result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+  return result;
+};
+
+export const placeBid = async (auctionId, itemId, asistenteId, amount) => {
+  const { data, error } = await supabase
+    .from("pujos")
+    .insert({
+      asistente: asistenteId,
+      item: itemId,
+      importe: amount,
+      ganador: "no",
+    })
+    .select("identificador")
+    .single();
+
+  if (error) {
+    console.error("Error placing bid:", error);
+    throw error;
+  }
+
+  const { error: timestampError } = await supabase
+    .from("pujos_timestamp")
+    .insert({
+      identificador: data.identificador,
+    });
+
+  if (timestampError) {
+    console.error("Error insertando timestamp de puja:", timestampError);
+    throw timestampError;
+  }
+
+  return data.identificador;
+};
+
+export const getAsistenteIdByClientId = async (clientId) => {
+  const { data, error } = await supabase
+    .from("asistentes")
+    .select("identificador")
+    .eq("cliente", clientId)
+    .maybeSingle();
+
+  if (error) {
+    console.log(error);
+    throw error;
+  }
+
+  return data?.identificador ?? null;
+};
+
+export const addParticipant = async (auctionId, clientId) => {
+  const { data, error } = await supabase
+    .from("asistentes")
+    .insert({
+      numeropostor: clientId,
+      cliente: clientId,
+      subasta: auctionId,
+    })
+    .select("identificador")
+    .single();
+
+  if (error) {
+    console.error("Error agregando participante:", error);
+    throw error;
+  }
+
+  return data.identificador;
+};
+
+export const getCurrentItemId = async (auctionId) => {
+  // 1. Buscar el catálogo asociado a la subasta
+  const { data: catalogo, error: catalogoError } = await supabase
+    .from("catalogos")
+    .select("identificador")
+    .eq("subasta", auctionId)
+    .single();
+
+  if (catalogoError || !catalogo) {
+    console.error("Error buscando catálogo:", catalogoError);
+    return null;
+  }
+
+  // 2. Buscar los items de ese catálogo
+  const { data: items, error: itemsError } = await supabase
+    .from("itemscatalogo")
+    .select("identificador")
+    .eq("catalogo", catalogo.identificador);
+
+  if (itemsError || !items?.length) {
+    console.error("Error buscando items:", itemsError);
+    return null;
+  }
+
+  // 3. Buscar cuál de esos items está activo
+  const { data: estadoActivo, error: estadoError } = await supabase
+    .from("itemscatalogo_estados")
+    .select("identificador")
+    .in(
+      "identificador",
+      items.map((i) => i.identificador),
+    )
+    .eq("active", true)
+    .maybeSingle();
+
+  if (estadoError) {
+    console.error("Error buscando estado activo:", estadoError);
+    return null;
+  }
+
+  return estadoActivo ? estadoActivo.identificador : null;
+};
+
+export const openAuctionExists = async (id) => {
+  const { data, error } = await supabase
+    .from("subastas")
+    .select("identificador")
+    .eq("identificador", id)
+    .eq("estado", "abierta")
+    .single();
+
+  if (error) {
+    console.error(error);
+    return false;
+  }
+
+  return data !== null;
+};
+
 export const getAuctions = async () => {
   // 1. Traer subastas + catalogos
   const { data: subastasData, error: subastasError } = await supabase.from(
