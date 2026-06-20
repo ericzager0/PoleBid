@@ -5,4 +5,6 @@ const router = Router();
 
 router.get("/", auctionsController.getAuctions);
 
+router.get("/:id", auctionsController.getAuctionById);
+
 export default router;

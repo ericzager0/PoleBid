@@ -9,3 +9,13 @@ export const getAuctions = catchAsync(async (req, res) => {
     data: auctions,
   });
 });
+
+export const getAuctionById = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const auction = await auctionsService.getAuctionById(id);
+
+  res.status(200).json({
+    status: "success",
+    data: auction,
+  });
+});
