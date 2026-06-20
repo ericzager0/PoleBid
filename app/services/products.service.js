@@ -18,6 +18,13 @@ export const updateProduct = async (userId, productId, estado) => {
     throw error;
   }
 
+  if (
+    product.estado === "ready_auction" &&
+    (estado === "scheduled_auction" || estado === "rejected_auction")
+  ) {
+    await productsRepository.updateProductState(productId, estado);
+  }
+
   if (product.estado === "interested" && estado === "in_inspection") {
     await productsRepository.updateProductState(productId, estado);
   } else {

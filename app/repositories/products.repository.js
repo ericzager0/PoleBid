@@ -23,6 +23,30 @@ export const updateProductState = async (productId, estado) => {
     .eq("identificador", productId);
 
   if (error) throw error;
+
+  if (estado === "rejected_auction") {
+    const { error: error2 } = await supabase
+      .from("items_catalogo")
+      .delete()
+      .eq("producto", productId);
+
+    if (error2) {
+      console.error(error2);
+      throw error2;
+    }
+  }
+
+  if (estado === "scheduled_auction") {
+    const { error: error3 } = await supabase
+      .from("productos")
+      .update({ disponible: "si" })
+      .eq("identificador", productId);
+
+    if (error3) {
+      console.error(error3);
+      throw error3;
+    }
+  }
 };
 
 export const getProducts = async (clientId) => {
