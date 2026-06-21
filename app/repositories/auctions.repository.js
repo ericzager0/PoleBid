@@ -29,7 +29,16 @@ export const getProductInfo = async (productId) => {
 
   if (errorItem) throw errorItem;
 
-  // 3. Procesamos la foto (si existe) al mismo formato base64 que el endpoint original
+  // 3. precioFinal viene de registrodesubasta (se completa solo si el producto ya fue subastado)
+  const { data: registro, error: errorRegistro } = await supabase
+    .from("registrodesubasta")
+    .select("importe")
+    .eq("producto", productId)
+    .maybeSingle();
+
+  if (errorRegistro) throw errorRegistro;
+
+  // 4. Procesamos la foto (si existe) al mismo formato base64 que el endpoint original
   const fotoRow = data.fotos?.[0];
   let fotoBase64 = null;
 
@@ -52,12 +61,13 @@ export const getProductInfo = async (productId) => {
   }
 
   return {
-    descripcioncatalogo: data.descripcioncatalogo,
-    descripcioncompleta: data.descripcioncompleta,
+    descripcionCatalogo: data.descripcioncatalogo,
+    descripcionCompleta: data.descripcioncompleta,
     // preciobase y comision solo se incluyen si existe un itemscatalogo asociado
-    ...(item?.preciobase != null ? { precioBase: item.preciobase } : {}),
+    ...(item?.preciobase != null ? { preciobase: item.preciobase } : {}),
     ...(item?.comision != null ? { comision: item.comision } : {}),
-    fotos: fotoBase64,
+    precioFinal: registro?.importe ?? null,
+    foto: fotoBase64,
   };
 };
 
