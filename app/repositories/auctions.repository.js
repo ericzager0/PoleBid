@@ -76,6 +76,7 @@ export const getPujosByItemId = async (itemId) => {
       asistente: p.asistente,
       importe: p.importe,
       ganador: p.ganador,
+      clientId: clienteId ?? null,
       categoria: categoriaPorCliente.get(clienteId) ?? null,
     };
   });

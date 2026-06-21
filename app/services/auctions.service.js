@@ -42,6 +42,8 @@ export const getCurrentItem = async (auctionId, userId) => {
 
   const subasta = await auctionsRepository.getAuctionById(auctionId);
 
+  console.log("SUBASTA", subasta);
+
   // busco dentro de los items de la subasta el que corresponde al producto activo
   const item = subasta.items?.find(
     (i) => i.idProducto === currentItem.producto,
