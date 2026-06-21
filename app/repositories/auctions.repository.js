@@ -55,7 +55,7 @@ export const getProductInfo = async (productId) => {
     descripcioncatalogo: data.descripcioncatalogo,
     descripcioncompleta: data.descripcioncompleta,
     // preciobase y comision solo se incluyen si existe un itemscatalogo asociado
-    ...(item?.preciobase != null ? { preciobase: item.preciobase } : {}),
+    ...(item?.preciobase != null ? { precioBase: item.preciobase } : {}),
     ...(item?.comision != null ? { comision: item.comision } : {}),
     foto: fotoBase64,
   };
