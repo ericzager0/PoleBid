@@ -49,6 +49,7 @@ export const getCurrentItem = async (auctionId, userId) => {
 
   return {
     itemId: currentItem.identificador,
+    updatedAt: currentItem.updated_at,
     identificador: item.idProducto,
     subastado: item.subastado,
     pujos,

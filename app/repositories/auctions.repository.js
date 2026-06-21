@@ -179,7 +179,7 @@ export const getCurrentItemId = async (auctionId) => {
   // 3. Buscar cuál de esos items está activo
   const { data: estadoActivo, error: estadoError } = await supabase
     .from("itemscatalogo_estados")
-    .select("identificador")
+    .select("identificador, updated_at")
     .in(
       "identificador",
       items.map((i) => i.identificador),
@@ -204,6 +204,7 @@ export const getCurrentItemId = async (auctionId) => {
   return {
     identificador: estadoActivo.identificador,
     producto: itemActivo?.producto ?? null,
+    updated_at: estadoActivo.updated_at,
   };
 };
 
