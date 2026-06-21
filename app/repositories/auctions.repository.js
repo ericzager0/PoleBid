@@ -393,8 +393,8 @@ export const getAuctionById = async (id) => {
       .select(
         "identificador, descripcioncatalogo, descripcioncompleta, disponible",
       )
-      .in("identificador", idsProducto)
-      .eq("disponible", "si");
+      .in("identificador", idsProducto);
+    // .eq("disponible", "si");
 
     if (productosError) {
       console.error(productosError);
@@ -489,3 +489,79 @@ export const getAuctionById = async (id) => {
     items: itemsResult,
   };
 };
+
+export async function getHistoryByClientId(clientId) {
+  // 1. Buscamos todas las "asistencias" de este cliente (cada una es una
+  //    participación suya en una subasta puntual).
+  const { data: asistentes, error: asistentesError } = await supabase
+    .from("asistentes")
+    .select("identificador")
+    .eq("cliente", clientId);
+
+  if (asistentesError) {
+    throw asistentesError;
+  }
+
+  if (!asistentes || asistentes.length === 0) {
+    return [];
+  }
+
+  const asistenteIds = asistentes.map((a) => a.identificador);
+
+  // 2. Traemos todas las pujas hechas por ese cliente (a través de sus
+  //    asistencias), con el item, el producto y la fecha de cada puja.
+  const { data: pujos, error: pujosError } = await supabase
+    .from("pujos")
+    .select(
+      `
+      item,
+      importe,
+      ganador,
+      itemscatalogo (
+        productos (
+          descripcioncatalogo
+        )
+      ),
+      pujos_timestamp (
+        created_at
+      )
+    `,
+    )
+    .in("asistente", asistenteIds);
+
+  if (pujosError) {
+    throw pujosError;
+  }
+
+  if (!pujos || pujos.length === 0) {
+    return [];
+  }
+
+  // 3. Agrupamos por item de catálogo, quedándonos con la puja de mayor
+  //    importe de cada uno.
+  const historialPorItem = new Map();
+
+  for (const pujo of pujos) {
+    const itemId = pujo.item;
+    const importeActual = Number(pujo.importe);
+    const existente = historialPorItem.get(itemId);
+
+    if (!existente || importeActual > existente.importe) {
+      historialPorItem.set(itemId, {
+        identificadorItemCatalogo: itemId,
+        descCatalogo:
+          pujo.itemscatalogo?.productos?.descripcioncatalogo ?? null,
+        importe: importeActual,
+        ganador: pujo.ganador,
+        fecha: pujo.pujos_timestamp?.created_at ?? null,
+      });
+    }
+  }
+
+  // Orden por fecha descendente (más reciente primero).
+  return Array.from(historialPorItem.values()).sort((a, b) => {
+    if (!a.fecha) return 1;
+    if (!b.fecha) return -1;
+    return new Date(b.fecha).getTime() - new Date(a.fecha).getTime();
+  });
+}

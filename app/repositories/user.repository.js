@@ -82,3 +82,65 @@ export const approveAsSeller = async (clientId, empleadoId) => {
     .from("duenios")
     .insert({ identificador: clientId, verificador: empleadoId });
 };
+
+/**
+ * Devuelve estadísticas agregadas de un cliente.
+ *
+ * @param {number} clientId - identificador del cliente
+ * @returns {Promise<{
+ *   subastasParticipadas: number,
+ *   pujasRealizadas: number,
+ *   totalInvertido: number,
+ *   subastasGanadas: number,
+ * }>}
+ */
+export async function getStatsByClientId(clientId) {
+  // 1. Asistencias del cliente (cada fila = una participación en una subasta)
+  const { data: asistentes, error: asistentesError } = await supabase
+    .from("asistentes")
+    .select("identificador")
+    .eq("cliente", clientId);
+
+  if (asistentesError) {
+    throw asistentesError;
+  }
+
+  const subastasParticipadas = asistentes?.length ?? 0;
+
+  if (subastasParticipadas === 0) {
+    return {
+      subastasParticipadas: 0,
+      pujasRealizadas: 0,
+      totalInvertido: 0,
+      subastasGanadas: 0,
+    };
+  }
+
+  const asistenteIds = asistentes.map((a) => a.identificador);
+
+  // 2. Todas las pujas hechas por el cliente, a través de sus asistencias
+  const { data: pujos, error: pujosError } = await supabase
+    .from("pujos")
+    .select("importe, ganador")
+    .in("asistente", asistenteIds);
+
+  if (pujosError) {
+    throw pujosError;
+  }
+
+  const pujasRealizadas = pujos?.length ?? 0;
+  const pujosGanadores = (pujos ?? []).filter((p) => p.ganador === "si");
+
+  const totalInvertido = pujosGanadores.reduce(
+    (acc, p) => acc + Number(p.importe),
+    0,
+  );
+  const subastasGanadas = pujosGanadores.length;
+
+  return {
+    subastasParticipadas,
+    pujasRealizadas,
+    totalInvertido,
+    subastasGanadas,
+  };
+}
