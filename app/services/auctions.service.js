@@ -14,9 +14,9 @@ export const getCurrentItem = async (auctionId, userId) => {
   // despues busco el primer item que tenga el auctionId y que este abierto
   // si lo hay, agrego al usuario como participante de la subasta, y retorno el item
   const openAuction = await auctionsRepository.openAuctionExists(auctionId);
-  const currentItemId = await auctionsRepository.getCurrentItemId(auctionId);
+  const currentItem = await auctionsRepository.getCurrentItemId(auctionId);
 
-  if (!openAuction || !currentItemId) {
+  if (!openAuction || !currentItem) {
     throw new Error("La subasta no está abierta o no hay items disponibles");
   }
 
@@ -36,21 +36,38 @@ export const getCurrentItem = async (auctionId, userId) => {
 
   // deberia agregar al userId como participante
   // deberia devolver todos los detalles de ese item, no solo el id. por ejemplo las pujas, el precio base, foto, etc.
-  const pujos = await auctionsRepository.getPujosByItemId(currentItemId);
+  const pujos = await auctionsRepository.getPujosByItemId(
+    currentItem.identificador,
+  );
 
-  return { itemId: currentItemId, pujos };
+  const subasta = await auctionsRepository.getAuctionById(auctionId);
+
+  // busco dentro de los items de la subasta el que corresponde al producto activo
+  const item = subasta.items?.find(
+    (i) => i.idProducto === currentItem.producto,
+  );
+
+  return {
+    itemId: currentItem.identificador,
+    pujos,
+    fecha: subasta.fecha,
+    descripcion: subasta.descripcion,
+    precioBase: item.precioBase,
+    descripcioncatalogo: item.descripcioncatalogo,
+    fotos: item.fotos,
+  };
 };
 
 export const placeBid = async (auctionId, itemId, userId, amount) => {
   // 1. Verificar que la subasta esté abierta y que el item sea el actual
   const openAuction = await auctionsRepository.openAuctionExists(auctionId);
-  const currentItemId = await auctionsRepository.getCurrentItemId(auctionId);
+  const currentItem = await auctionsRepository.getCurrentItemId(auctionId);
 
   if (!openAuction) {
     throw new Error("La subasta no está abierta");
   }
 
-  if (String(currentItemId) !== itemId) {
+  if (String(currentItem.identificador) !== itemId) {
     throw new Error("El item no es el actual");
   }
 

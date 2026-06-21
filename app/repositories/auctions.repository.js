@@ -164,10 +164,10 @@ export const getCurrentItemId = async (auctionId) => {
     return null;
   }
 
-  // 2. Buscar los items de ese catálogo
+  // 2. Buscar los items de ese catálogo (incluyendo su producto)
   const { data: items, error: itemsError } = await supabase
     .from("itemscatalogo")
-    .select("identificador")
+    .select("identificador, producto")
     .eq("catalogo", catalogo.identificador);
 
   if (itemsError || !items?.length) {
@@ -191,7 +191,19 @@ export const getCurrentItemId = async (auctionId) => {
     return null;
   }
 
-  return estadoActivo ? estadoActivo.identificador : null;
+  if (!estadoActivo) {
+    return { identificador: null, producto: null };
+  }
+
+  // 4. Cruzar el identificador activo con la lista de items para obtener su producto
+  const itemActivo = items.find(
+    (i) => i.identificador === estadoActivo.identificador,
+  );
+
+  return {
+    identificador: estadoActivo.identificador,
+    producto: itemActivo?.producto ?? null,
+  };
 };
 
 export const openAuctionExists = async (id) => {
