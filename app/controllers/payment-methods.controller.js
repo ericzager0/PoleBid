@@ -22,6 +22,7 @@ export const addBankAccount = catchAsync(async (req, res, next) => {
   const alias = req.body.alias ? requireString(req.body.alias, "alias") : null;
   const owner = requireString(req.body.owner, "owner");
   const cuitCuil = requireString(req.body.cuitCuil, "cuitCuil");
+  const reservedFunds = requireNumber(req.body.reservedFunds, "reservedFunds");
 
   const userId = req.user.id;
 
@@ -30,6 +31,7 @@ export const addBankAccount = catchAsync(async (req, res, next) => {
     alias,
     owner,
     cuitCuil,
+    reservedFunds,
     userId,
   );
 

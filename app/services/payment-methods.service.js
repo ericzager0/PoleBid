@@ -53,7 +53,7 @@ const getCardBrand = (number) => {
   return randomKey;
 };
 
-// helper para determinar el banco a partir del CBU/CVU
+// helper para determinar el banco a partir del CBU
 const getBankNameByCbu = (cbu) => {
   const BANKS = [
     "banco nacion",
@@ -103,7 +103,7 @@ const getBankNameByCheck = (number) => {
   return BANKS[isNaN(index) ? 0 : index];
 };
 
-export const addBankAccount = async (cbu, alias, owner, cuitCuil, userId) => {
+export const addBankAccount = async ( cbu, alias, owner, cuitCuil, reservedFunds, userId ) => {
   const bankName = getBankNameByCbu(cbu);
 
   const user = await userRepository.getUserById(userId);
@@ -116,6 +116,7 @@ export const addBankAccount = async (cbu, alias, owner, cuitCuil, userId) => {
     alias,
     owner,
     cuitCuil,
+    reservedFunds,
   );
 };
 
@@ -134,4 +135,4 @@ export const addCheck = async (number, amount, owner, cuitCuil, userId) => {
     cuitCuil,
   );
 };
-
+

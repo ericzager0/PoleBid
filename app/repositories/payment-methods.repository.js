@@ -31,9 +31,7 @@ export const addCard = async (
 export const getPaymentMethodsByClientId = async (clientId) => {
   const { data: cards, error: cardsError } = await supabase
     .from("cards")
-    .select(
-      "id, lastFour:last_four, expMonth:exp_month, expYear:exp_year, brand, owner",
-    )
+    .select("id, lastFour:last_four, expMonth:exp_month, expYear:exp_year, brand, owner")
     .eq("client_id", clientId);
 
   if (cardsError) {
@@ -42,9 +40,7 @@ export const getPaymentMethodsByClientId = async (clientId) => {
 
   const { data: bankAccounts, error: bankAccountsError } = await supabase
     .from("bank_accounts")
-    .select(
-      "id, bankName:bank_name, cbu, alias, owner, cuitCuil:cuit_cuil",
-    )
+    .select("id, bankName:bank_name, cbu, alias, owner, cuitCuil:cuit_cuil, reservedFunds:reserved_funds")
     .eq("client_id", clientId);
 
   if (bankAccountsError) {
@@ -53,9 +49,7 @@ export const getPaymentMethodsByClientId = async (clientId) => {
 
   const { data: checks, error: checksError } = await supabase
     .from("checks")
-    .select(
-      "id, number, bankName:bank_name, amount, owner, cuitCuil:cuit_cuil, isVerified:is_verified",
-    )
+    .select("id, number, bankName:bank_name, amount, owner, cuitCuil:cuit_cuil, isVerified:is_verified")
     .eq("client_id", clientId);
 
   if (checksError) {
@@ -65,14 +59,7 @@ export const getPaymentMethodsByClientId = async (clientId) => {
   return { cards, bankAccounts, checks };
 };
 
-export const addBankAccount = async (
-  clientId,
-  bankName,
-  cbu,
-  alias,
-  owner,
-  cuitCuil,
-) => {
+export const addBankAccount = async (clientId, bankName, cbu, alias, owner, cuitCuil, reservedFunds,) => {
   const { data, error } = await supabase
     .from("bank_accounts")
     .insert({
@@ -81,7 +68,8 @@ export const addBankAccount = async (
       cbu: cbu,
       alias: alias,
       owner: owner,
-      cuit_cuil: cuitCuil,
+      cuit_cuil: cuitCuil,  
+      reserved_funds: reservedFunds,
     })
     .select("id")
     .maybeSingle();
