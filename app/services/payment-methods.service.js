@@ -53,55 +53,7 @@ const getCardBrand = (number) => {
   return randomKey;
 };
 
-// helper para determinar el banco a partir del CBU
-const getBankNameByCbu = (cbu) => {
-  const BANKS = [
-    "banco nacion",
-    "santander",
-    "galicia",
-    "bbva",
-    "macro",
-    "brubank",
-    "mercado pago",
-    "uala",
-    "patagonia",
-    "supervielle",
-    "itau",
-    "hsbc",
-    "credicoop",
-  ];
-  const c = cbu.replace(/\s/g, "");
 
-  if (/^011/.test(c)) return "banco nacion";
-  if (/^072/.test(c)) return "santander";
-  if (/^007/.test(c)) return "galicia";
-  if (/^017/.test(c)) return "bbva";
-  if (/^285/.test(c)) return "macro";
-  if (/^143/.test(c)) return "brubank";
-  if (/^000/.test(c)) return "mercado pago";
-
-  const randomBank = BANKS[Math.floor(Math.random() * BANKS.length)];
-
-  return randomBank;
-};
-
-// helper para determinar el banco a partir del número de cheque (de forma determinista)
-const getBankNameByCheck = (number) => {
-  const BANKS = [
-    "banco nacion",
-    "santander",
-    "galicia",
-    "bbva",
-    "macro",
-    "brubank",
-    "patagonia",
-    "supervielle",
-    "hsbc",
-    "credicoop",
-  ];
-  const index = Number(number) % BANKS.length;
-  return BANKS[isNaN(index) ? 0 : index];
-};
 
 export const addBankAccount = async ( bankName, owner, cuil, cbu, reservedFunds, userId ) => {
   const isCbu = /^\d{22}$/.test(cbu.trim());
