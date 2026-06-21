@@ -1,6 +1,10 @@
 import * as auctionsRepository from "../repositories/auctions.repository.js";
 import * as userRepository from "../repositories/user.repository.js";
 
+export const getProductInfo = async (id) => {
+  return await auctionsRepository.getProductInfo(id);
+};
+
 export const getAuctions = async () => {
   return await auctionsRepository.getAuctions();
 };

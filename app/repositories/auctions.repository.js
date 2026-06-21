@@ -1,5 +1,66 @@
 import { supabase } from "../config/supabase.config.js";
 
+export const getProductInfo = async (productId) => {
+  // 1. Producto + 1 sola foto (limitamos el embed a 1 registro)
+  const { data, error } = await supabase
+    .from("productos")
+    .select(
+      `
+      descripcioncatalogo,
+      descripcioncompleta,
+      fotos (
+        identificador,
+        foto
+      )
+    `,
+    )
+    .eq("identificador", productId)
+    .limit(1, { foreignTable: "fotos" })
+    .single();
+
+  if (error) throw error;
+
+  // 2. preciobase y comision viven en itemscatalogo (a lo sumo 1 por producto)
+  const { data: item, error: errorItem } = await supabase
+    .from("itemscatalogo")
+    .select("preciobase, comision")
+    .eq("producto", productId)
+    .maybeSingle();
+
+  if (errorItem) throw errorItem;
+
+  // 3. Procesamos la foto (si existe) al mismo formato base64 que el endpoint original
+  const fotoRow = data.fotos?.[0];
+  let fotoBase64 = null;
+
+  if (fotoRow) {
+    try {
+      if (typeof fotoRow.foto === "string" && fotoRow.foto.startsWith("\\x")) {
+        const stringJson = Buffer.from(
+          fotoRow.foto.replace("\\x", ""),
+          "hex",
+        ).toString("utf-8");
+
+        const parsedData = JSON.parse(stringJson);
+        fotoBase64 = Buffer.from(parsedData.data).toString("base64");
+      } else {
+        fotoBase64 = Buffer.from(fotoRow.foto).toString("base64");
+      }
+    } catch (e) {
+      console.error("Error procesando imagen para el producto", productId, e);
+    }
+  }
+
+  return {
+    descripcionCatalogo: data.descripcioncatalogo,
+    descripcionCompleta: data.descripcioncompleta,
+    // preciobase y comision solo se incluyen si existe un itemscatalogo asociado
+    ...(item?.preciobase != null ? { preciobase: item.preciobase } : {}),
+    ...(item?.comision != null ? { comision: item.comision } : {}),
+    foto: fotoBase64,
+  };
+};
+
 export const getPujosByItemId = async (itemId) => {
   // 1. Buscar las pujas del item
   const { data: pujos, error: pujosError } = await supabase

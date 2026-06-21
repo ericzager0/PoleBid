@@ -1,6 +1,16 @@
 import catchAsync from "../utils/catchAsync.js";
 import * as auctionsService from "../services/auctions.service.js";
 
+export const getProductInfo = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const productInfo = await auctionsService.getProductInfo(id);
+
+  res.status(200).json({
+    status: "success",
+    data: productInfo,
+  });
+});
+
 export const getAuctions = catchAsync(async (req, res) => {
   const auctions = await auctionsService.getAuctions();
 

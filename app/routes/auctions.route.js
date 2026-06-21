@@ -14,6 +14,8 @@ router.get(
   auctionsController.getCurrentItem,
 );
 
+router.get("/products/:id", auctionsController.getProductInfo);
+
 router.post(
   "/:id/items/:itemId/bids",
   authMiddleware,
