@@ -49,6 +49,7 @@ export const getCurrentItem = async (auctionId, userId) => {
 
   return {
     itemId: currentItem.identificador,
+    idProducto: item.idProducto,
     pujos,
     fecha: subasta.fecha,
     descripcion: subasta.descripcion,
@@ -73,12 +74,8 @@ export const placeBid = async (auctionId, itemId, userId, amount) => {
 
   const clientId = await userRepository.getClientIdByUserId(userId);
 
-  console.log("Client ID:", clientId);
-
   const asistenteId =
     await auctionsRepository.getAsistenteIdByClientId(clientId);
-
-  console.log("Asistente ID:", asistenteId);
 
   // IMPORTANTE
   // aplicar reglas de negocio, por ejemplo validar que la puja sea mayor a la actual, que el usuario tenga fondos, etc.
