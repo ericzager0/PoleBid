@@ -368,7 +368,7 @@ export const getAuctionById = async (id) => {
   if (idCatalogo !== null) {
     const { data: itemsData, error: itemsError } = await supabase
       .from("itemscatalogo")
-      .select("preciobase, producto")
+      .select("preciobase, producto, subastado")
       .eq("catalogo", idCatalogo);
 
     if (itemsError) {
@@ -472,6 +472,7 @@ export const getAuctionById = async (id) => {
         descripcioncatalogo: producto.descripcioncatalogo,
         descripcioncompleta: producto.descripcioncompleta,
         fotos: fotosPorProducto[producto.identificador] ?? [],
+        subastado: item.subastado,
       };
     });
 
