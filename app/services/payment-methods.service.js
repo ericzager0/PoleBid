@@ -103,8 +103,10 @@ const getBankNameByCheck = (number) => {
   return BANKS[isNaN(index) ? 0 : index];
 };
 
-export const addBankAccount = async ( cbu, alias, owner, cuitCuil, reservedFunds, userId ) => {
-  const bankName = getBankNameByCbu(cbu);
+export const addBankAccount = async ( bankName, owner, cuil, cbu, reservedFunds, userId ) => {
+  const isCbu = /^\d{22}$/.test(cbu.trim());
+  const actualCbu = isCbu ? cbu.trim() : null;
+  const alias = isCbu ? null : cbu.trim();
 
   const user = await userRepository.getUserById(userId);
   const clientId = user.clientId;
@@ -112,17 +114,15 @@ export const addBankAccount = async ( cbu, alias, owner, cuitCuil, reservedFunds
   return await paymentMethodsRepository.addBankAccount(
     clientId,
     bankName,
-    cbu,
+    actualCbu,
     alias,
     owner,
-    cuitCuil,
+    cuil,
     reservedFunds,
   );
 };
 
-export const addCheck = async (number, amount, owner, cuitCuil, userId) => {
-  const bankName = getBankNameByCheck(number);
-
+export const addCheck = async ( bankName, owner, number, currency, amount, issueDate, cuil, userId ) => {
   const user = await userRepository.getUserById(userId);
   const clientId = user.clientId;
 
@@ -132,7 +132,9 @@ export const addCheck = async (number, amount, owner, cuitCuil, userId) => {
     bankName,
     amount,
     owner,
-    cuitCuil,
+    cuil,
+    currency,
+    issueDate,
   );
 };
 

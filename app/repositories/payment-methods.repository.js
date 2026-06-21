@@ -40,7 +40,7 @@ export const getPaymentMethodsByClientId = async (clientId) => {
 
   const { data: bankAccounts, error: bankAccountsError } = await supabase
     .from("bank_accounts")
-    .select("id, bankName:bank_name, cbu, alias, owner, cuitCuil:cuit_cuil, reservedFunds:reserved_funds")
+    .select("id, bankName:bank_name, cbu, alias, owner, cuil:cuil_cuit, reservedFunds:reserved_funds")
     .eq("client_id", clientId);
 
   if (bankAccountsError) {
@@ -49,7 +49,7 @@ export const getPaymentMethodsByClientId = async (clientId) => {
 
   const { data: checks, error: checksError } = await supabase
     .from("checks")
-    .select("id, number, bankName:bank_name, amount, owner, cuitCuil:cuit_cuil, isVerified:is_verified")
+    .select("id, number, bankName:bank_name, amount, owner, cuil, isVerified:is_verified, currency, issueDate:issue_date")
     .eq("client_id", clientId);
 
   if (checksError) {
@@ -59,7 +59,7 @@ export const getPaymentMethodsByClientId = async (clientId) => {
   return { cards, bankAccounts, checks };
 };
 
-export const addBankAccount = async (clientId, bankName, cbu, alias, owner, cuitCuil, reservedFunds,) => {
+export const addBankAccount = async (clientId, bankName, cbu, alias, owner, cuil, reservedFunds,) => {
   const { data, error } = await supabase
     .from("bank_accounts")
     .insert({
@@ -68,7 +68,7 @@ export const addBankAccount = async (clientId, bankName, cbu, alias, owner, cuit
       cbu: cbu,
       alias: alias,
       owner: owner,
-      cuit_cuil: cuitCuil,  
+      cuil_cuit: cuil,    
       reserved_funds: reservedFunds,
     })
     .select("id")
@@ -87,7 +87,9 @@ export const addCheck = async (
   bankName,
   amount,
   owner,
-  cuitCuil,
+  cuil,
+  currency,
+  issueDate,
 ) => {
   const { data, error } = await supabase
     .from("checks")
@@ -97,7 +99,9 @@ export const addCheck = async (
       bank_name: bankName,
       amount: amount,
       owner: owner,
-      cuit_cuil: cuitCuil,
+      cuil: cuil,
+      currency: currency,
+      issue_date: issueDate,
     })
     .select("id")
     .maybeSingle();
