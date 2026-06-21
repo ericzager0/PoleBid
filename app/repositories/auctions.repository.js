@@ -67,7 +67,7 @@ export const getProductInfo = async (productId) => {
     ...(item?.preciobase != null ? { preciobase: item.preciobase } : {}),
     ...(item?.comision != null ? { comision: item.comision } : {}),
     precioFinal: registro?.importe ?? null,
-    foto: fotoBase64,
+    fotos: fotoBase64,
   };
 };
 
