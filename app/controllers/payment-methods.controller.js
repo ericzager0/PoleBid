@@ -18,19 +18,19 @@ export const addCard = catchAsync(async (req, res, next) => {
 });
 
 export const addBankAccount = catchAsync(async (req, res, next) => {
-  const cbu = requireString(req.body.cbu, "cbu");
-  const alias = req.body.alias ? requireString(req.body.alias, "alias") : null;
+  const bankName = requireString(req.body.bankName, "bankName");
   const owner = requireString(req.body.owner, "owner");
-  const cuitCuil = requireString(req.body.cuitCuil, "cuitCuil");
-  const reservedFunds = requireNumber(req.body.reservedFunds, "reservedFunds");
+  const cuil = requireString(req.body.cuil, "cuil");
+  const cbu = requireString(req.body.cbu, "cbu");
+  const reservedFunds = req.body.reservedFunds !== undefined ? requireNumber(req.body.reservedFunds, "reservedFunds") : 0;
 
   const userId = req.user.id;
 
   await paymentMethodsService.addBankAccount(
-    cbu,
-    alias,
+    bankName,
     owner,
-    cuitCuil,
+    cuil,
+    cbu,
     reservedFunds,
     userId,
   );
@@ -41,14 +41,26 @@ export const addBankAccount = catchAsync(async (req, res, next) => {
 });
 
 export const addCheck = catchAsync(async (req, res, next) => {
-  const number = requireNumber(req.body.number, "number");
-  const amount = requireNumber(req.body.amount, "amount");
+  const bankName = requireString(req.body.bankName, "bankName");
   const owner = requireString(req.body.owner, "owner");
-  const cuitCuil = requireString(req.body.cuitCuil, "cuitCuil");
+  const number = requireNumber(req.body.number, "number");
+  const currency = requireString(req.body.currency, "currency");
+  const amount = requireNumber(req.body.amount, "amount");
+  const issueDate = requireString(req.body.issueDate, "issueDate");
+  const cuil = requireString(req.body.cuil, "cuil");
 
   const userId = req.user.id;
 
-  await paymentMethodsService.addCheck(number, amount, owner, cuitCuil, userId);
+  await paymentMethodsService.addCheck(
+    bankName,
+    owner,
+    number,
+    currency,
+    amount,
+    issueDate,
+    cuil,
+    userId,
+  );
 
   res.status(200).json({
     status: "success",

@@ -53,58 +53,12 @@ const getCardBrand = (number) => {
   return randomKey;
 };
 
-// helper para determinar el banco a partir del CBU
-const getBankNameByCbu = (cbu) => {
-  const BANKS = [
-    "banco nacion",
-    "santander",
-    "galicia",
-    "bbva",
-    "macro",
-    "brubank",
-    "mercado pago",
-    "uala",
-    "patagonia",
-    "supervielle",
-    "itau",
-    "hsbc",
-    "credicoop",
-  ];
-  const c = cbu.replace(/\s/g, "");
 
-  if (/^011/.test(c)) return "banco nacion";
-  if (/^072/.test(c)) return "santander";
-  if (/^007/.test(c)) return "galicia";
-  if (/^017/.test(c)) return "bbva";
-  if (/^285/.test(c)) return "macro";
-  if (/^143/.test(c)) return "brubank";
-  if (/^000/.test(c)) return "mercado pago";
 
-  const randomBank = BANKS[Math.floor(Math.random() * BANKS.length)];
-
-  return randomBank;
-};
-
-// helper para determinar el banco a partir del número de cheque (de forma determinista)
-const getBankNameByCheck = (number) => {
-  const BANKS = [
-    "banco nacion",
-    "santander",
-    "galicia",
-    "bbva",
-    "macro",
-    "brubank",
-    "patagonia",
-    "supervielle",
-    "hsbc",
-    "credicoop",
-  ];
-  const index = Number(number) % BANKS.length;
-  return BANKS[isNaN(index) ? 0 : index];
-};
-
-export const addBankAccount = async ( cbu, alias, owner, cuitCuil, reservedFunds, userId ) => {
-  const bankName = getBankNameByCbu(cbu);
+export const addBankAccount = async ( bankName, owner, cuil, cbu, reservedFunds, userId ) => {
+  const isCbu = /^\d{22}$/.test(cbu.trim());
+  const actualCbu = isCbu ? cbu.trim() : null;
+  const alias = isCbu ? null : cbu.trim();
 
   const user = await userRepository.getUserById(userId);
   const clientId = user.clientId;
@@ -112,17 +66,15 @@ export const addBankAccount = async ( cbu, alias, owner, cuitCuil, reservedFunds
   return await paymentMethodsRepository.addBankAccount(
     clientId,
     bankName,
-    cbu,
+    actualCbu,
     alias,
     owner,
-    cuitCuil,
+    cuil,
     reservedFunds,
   );
 };
 
-export const addCheck = async (number, amount, owner, cuitCuil, userId) => {
-  const bankName = getBankNameByCheck(number);
-
+export const addCheck = async ( bankName, owner, number, currency, amount, issueDate, cuil, userId ) => {
   const user = await userRepository.getUserById(userId);
   const clientId = user.clientId;
 
@@ -132,7 +84,9 @@ export const addCheck = async (number, amount, owner, cuitCuil, userId) => {
     bankName,
     amount,
     owner,
-    cuitCuil,
+    cuil,
+    currency,
+    issueDate,
   );
 };
 
