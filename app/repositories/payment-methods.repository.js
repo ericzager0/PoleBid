@@ -54,7 +54,7 @@ export const getPaymentMethodsByClientId = async (clientId) => {
   const { data: checks, error: checksError } = await supabase
     .from("checks")
     .select(
-      "id, bank_name, owner, number, currency, amount, issueDate:issue_date",
+      "id, bank_name, owner, number, currency, amount, issueDate:issue_date, is_verified",
     )
     .eq("client_id", clientId);
 
