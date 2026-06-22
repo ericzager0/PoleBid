@@ -35,15 +35,15 @@ export const getCurrentItem = catchAsync(async (req, res) => {
   const { id } = req.params;
   const { bidsonly } = req.query;
 
-  const currentItem = await auctionsService.getCurrentItem(id, userId);
-
-  const { fotos, ...itemSinFotos } = currentItem;
-
-  const data = bidsonly === "true" ? itemSinFotos : currentItem;
+  const currentItem = await auctionsService.getCurrentItem(
+    id,
+    userId,
+    bidsonly,
+  );
 
   res.status(200).json({
     status: "success",
-    data,
+    data: currentItem,
   });
 });
 

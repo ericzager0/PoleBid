@@ -13,7 +13,7 @@ export const getAuctionById = async (id) => {
   return await auctionsRepository.getAuctionById(id);
 };
 
-export const getCurrentItem = async (auctionId, userId) => {
+export const getCurrentItem = async (auctionId, userId, bidsonly = false) => {
   // busco el auction, esta deberia primero existir y despues estar abierta
   // despues busco el primer item que tenga el auctionId y que este abierto
   // si lo hay, agrego al usuario como participante de la subasta, y retorno el item
@@ -44,7 +44,13 @@ export const getCurrentItem = async (auctionId, userId) => {
     currentItem.identificador,
   );
 
-  const subasta = await auctionsRepository.getAuctionById(auctionId);
+  let subasta;
+
+  if (bidsonly === "true") {
+    subasta = await auctionsRepository.getAuctionByIdSinFotos(auctionId);
+  } else {
+    subasta = await auctionsRepository.getAuctionById(auctionId);
+  }
 
   // busco dentro de los items de la subasta el que corresponde al producto activo
   const item = subasta.items?.find(

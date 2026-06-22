@@ -410,7 +410,7 @@ export const getAuctionById = async (id) => {
   // 1. Traer datos de la subasta
   const { data: subastaData, error: subastaError } = await supabase
     .from("subastas")
-    .select("fecha, hora, estado, ubicacion,  capacidadasistentes, categoria")
+    .select("fecha, hora, estado, ubicacion, capacidadasistentes, categoria")
     .eq("identificador", id)
     .single();
 
@@ -554,7 +554,108 @@ export const getAuctionById = async (id) => {
     hora: subastaData.hora,
     estado: subastaData.estado,
     ubicacion: subastaData.ubicacion,
-    cantidadasistentes: subastaData.cantidadasistentes,
+    cantidadasistentes: subastaData.capacidadasistentes,
+    categoria: subastaData.categoria,
+    descripcion,
+    items: itemsResult,
+  };
+};
+
+export const getAuctionByIdSinFotos = async (id) => {
+  // 1. Traer datos de la subasta
+  const { data: subastaData, error: subastaError } = await supabase
+    .from("subastas")
+    .select("fecha, hora, estado, ubicacion, capacidadasistentes, categoria")
+    .eq("identificador", id)
+    .single();
+
+  if (subastaError) {
+    console.error(subastaError);
+    return null;
+  }
+
+  // 2. Traer catalogo asociado a esta subasta
+  const { data: catalogoData, error: catalogoError } = await supabase
+    .from("catalogos")
+    .select("identificador, descripcion")
+    .eq("subasta", id)
+    .single();
+
+  if (catalogoError) {
+    console.error(catalogoError);
+    return null;
+  }
+
+  const idCatalogo = catalogoData?.identificador ?? null;
+  const descripcion = catalogoData?.descripcion ?? null;
+
+  // 3. Traer items de catalogo (precioBase + producto)
+  let items = [];
+
+  if (idCatalogo !== null) {
+    const { data: itemsData, error: itemsError } = await supabase
+      .from("itemscatalogo")
+      .select("preciobase, producto, subastado")
+      .eq("catalogo", idCatalogo);
+
+    if (itemsError) {
+      console.error(itemsError);
+      return null;
+    }
+
+    items = itemsData;
+  }
+
+  // 4. Traer productos disponibles para esos items
+  const idsProducto = items
+    .map((item) => item.producto)
+    .filter((id) => id !== null);
+
+  let productosPorId = {};
+
+  if (idsProducto.length > 0) {
+    const { data: productosData, error: productosError } = await supabase
+      .from("productos")
+      .select(
+        "identificador, descripcioncatalogo, descripcioncompleta, disponible",
+      )
+      .in("identificador", idsProducto);
+    // .eq("disponible", "si");
+
+    if (productosError) {
+      console.error(productosError);
+      return null;
+    }
+
+    productosPorId = productosData.reduce((acc, producto) => {
+      acc[producto.identificador] = producto;
+      return acc;
+    }, {});
+  }
+
+  // 5. Armar array final de items, solo con productos disponibles
+  //    (sin traer fotos)
+  const itemsResult = items
+    .filter((item) => productosPorId[item.producto] !== undefined)
+    .map((item) => {
+      const producto = productosPorId[item.producto];
+
+      return {
+        idProducto: producto.identificador,
+        precioBase: item.preciobase,
+        descripcioncatalogo: producto.descripcioncatalogo,
+        descripcioncompleta: producto.descripcioncompleta,
+        subastado: item.subastado,
+      };
+    });
+
+  // 6. Armar resultado final
+  return {
+    fecha: subastaData.fecha,
+    hora: subastaData.hora,
+    estado: subastaData.estado,
+    ubicacion: subastaData.ubicacion,
+    cantidadasistentes: subastaData.capacidadasistentes,
     categoria: subastaData.categoria,
     descripcion,
     items: itemsResult,
