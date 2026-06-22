@@ -40,23 +40,21 @@ export const getPaymentMethodsByClientId = async (clientId) => {
     throw new Error("Error al obtener las tarjetas: " + cardsError.message);
   }
 
-  const { data: bankAccounts, error: bankAccountsError } = await supabase
+  const { data: banksAccounts, error: banksAccountsError } = await supabase
     .from("bank_accounts")
-    .select(
-      "id, bankName:bank_name, cbu, alias, owner, cuil:cuil_cuit, reservedFunds:reserved_funds",
-    )
+    .select("id, bank_name, owner, cuil_cuit, cbu, reserved_funds")
     .eq("client_id", clientId);
 
-  if (bankAccountsError) {
+  if (banksAccountsError) {
     throw new Error(
-      "Error al obtener las cuentas bancarias: " + bankAccountsError.message,
+      "Error al obtener las cuentas bancarias: " + banksAccountsError.message,
     );
   }
 
   const { data: checks, error: checksError } = await supabase
     .from("checks")
     .select(
-      "id, number, bankName:bank_name, amount, owner, isVerified:is_verified, currency, issueDate:issue_date",
+      "id, bank_name, owner, number, currency, amount, issueDate:issue_date",
     )
     .eq("client_id", clientId);
 
@@ -64,7 +62,7 @@ export const getPaymentMethodsByClientId = async (clientId) => {
     throw new Error("Error al obtener los cheques: " + checksError.message);
   }
 
-  return { cards, bankAccounts, checks };
+  return { cards, banksAccounts, checks };
 };
 
 export const addBankAccount = async (
