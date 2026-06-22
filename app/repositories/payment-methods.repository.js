@@ -103,7 +103,6 @@ export const addCheck = async (
   bankName,
   amount,
   owner,
-  cuil,
   currency,
   issueDate,
 ) => {
@@ -115,7 +114,6 @@ export const addCheck = async (
       bank_name: bankName,
       amount: amount,
       owner: owner,
-      cuil: cuil,
       currency: currency,
       issue_date: issueDate,
     })
