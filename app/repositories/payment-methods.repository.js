@@ -31,7 +31,9 @@ export const addCard = async (
 export const getPaymentMethodsByClientId = async (clientId) => {
   const { data: cards, error: cardsError } = await supabase
     .from("cards")
-    .select("id, lastFour:last_four, expMonth:exp_month, expYear:exp_year, brand, owner")
+    .select(
+      "id, lastFour:last_four, expMonth:exp_month, expYear:exp_year, brand, owner",
+    )
     .eq("client_id", clientId);
 
   if (cardsError) {
@@ -40,16 +42,22 @@ export const getPaymentMethodsByClientId = async (clientId) => {
 
   const { data: bankAccounts, error: bankAccountsError } = await supabase
     .from("bank_accounts")
-    .select("id, bankName:bank_name, cbu, alias, owner, cuil:cuil_cuit, reservedFunds:reserved_funds")
+    .select(
+      "id, bankName:bank_name, cbu, alias, owner, cuil:cuil_cuit, reservedFunds:reserved_funds",
+    )
     .eq("client_id", clientId);
 
   if (bankAccountsError) {
-    throw new Error("Error al obtener las cuentas bancarias: " + bankAccountsError.message);
+    throw new Error(
+      "Error al obtener las cuentas bancarias: " + bankAccountsError.message,
+    );
   }
 
   const { data: checks, error: checksError } = await supabase
     .from("checks")
-    .select("id, number, bankName:bank_name, amount, owner, cuil, isVerified:is_verified, currency, issueDate:issue_date")
+    .select(
+      "id, number, bankName:bank_name, amount, owner, isVerified:is_verified, currency, issueDate:issue_date",
+    )
     .eq("client_id", clientId);
 
   if (checksError) {
@@ -59,7 +67,15 @@ export const getPaymentMethodsByClientId = async (clientId) => {
   return { cards, bankAccounts, checks };
 };
 
-export const addBankAccount = async (clientId, bankName, cbu, alias, owner, cuil, reservedFunds,) => {
+export const addBankAccount = async (
+  clientId,
+  bankName,
+  cbu,
+  alias,
+  owner,
+  cuil,
+  reservedFunds,
+) => {
   const { data, error } = await supabase
     .from("bank_accounts")
     .insert({
@@ -68,7 +84,7 @@ export const addBankAccount = async (clientId, bankName, cbu, alias, owner, cuil
       cbu: cbu,
       alias: alias,
       owner: owner,
-      cuil_cuit: cuil,    
+      cuil_cuit: cuil,
       reserved_funds: reservedFunds,
     })
     .select("id")
@@ -112,5 +128,3 @@ export const addCheck = async (
 
   return data;
 };
-
-
