@@ -58,7 +58,6 @@ export const addCheck = catchAsync(async (req, res, next) => {
     currency,
     amount,
     issueDate,
-    cuil,
     userId,
   );
 
