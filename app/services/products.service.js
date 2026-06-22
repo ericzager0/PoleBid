@@ -44,6 +44,8 @@ export const updateProduct = async (userId, productId, estado) => {
     product.estado === "ready_auction" &&
     (estado === "scheduled_auction" || estado === "rejected_auction")
   ) {
+    
+    await productsRepository.addSeguro(productId);
     await productsRepository.updateProductState(productId, estado);
     return;
   }

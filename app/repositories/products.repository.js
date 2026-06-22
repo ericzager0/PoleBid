@@ -288,3 +288,41 @@ export const addProduct = async (
     throw error3;
   }
 };
+
+
+export const addSeguro = async(productId) => {
+  const {data: item, error: errorItem} = await supabase
+  .from("itemscatalogo")
+  .select("preciobase")
+  .eq("producto", productId)
+  .maybeSingle()
+  
+  const preciobase = item.preciobase;
+
+  const { data, error } = await supabase
+    .from("seguros")
+    .insert({
+      nropoliza: "pol-" + productId,
+      compania: "seguros-polebid",
+      importe: item.preciobase
+    })
+    .select("nropoliza")
+    .single()
+
+  if (error) {
+    console.log(error);
+    throw error;
+  }
+
+  const nropoliza = data.nropoliza;
+
+  const { error: error2 } = await supabase
+    .from("productos")
+    .update({ nropoliza })
+    .eq("producto", productId);
+
+  if (error2) {
+    console.log(error2);
+    throw error2;
+  }
+}
