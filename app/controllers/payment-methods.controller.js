@@ -22,7 +22,10 @@ export const addBankAccount = catchAsync(async (req, res, next) => {
   const owner = requireString(req.body.owner, "owner");
   const cuil = requireString(req.body.cuil, "cuil");
   const cbu = requireString(req.body.cbu, "cbu");
-  const reservedFunds = req.body.reservedFunds !== undefined ? requireNumber(req.body.reservedFunds, "reservedFunds") : 0;
+  const reservedFunds =
+    req.body.reservedFunds !== undefined
+      ? requireNumber(req.body.reservedFunds, "reservedFunds")
+      : 0;
 
   const userId = req.user.id;
 
@@ -47,7 +50,6 @@ export const addCheck = catchAsync(async (req, res, next) => {
   const currency = requireString(req.body.currency, "currency");
   const amount = requireNumber(req.body.amount, "amount");
   const issueDate = requireString(req.body.issueDate, "issueDate");
-  const cuil = requireString(req.body.cuil, "cuil");
 
   const userId = req.user.id;
 
@@ -65,4 +67,3 @@ export const addCheck = catchAsync(async (req, res, next) => {
     status: "success",
   });
 });
-
