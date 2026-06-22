@@ -183,6 +183,19 @@ export const getFullProductById = async (productId) => {
     subastaData = data;
   }
 
+  // 4. Buscar el seguro correspondiente (solo si el producto tiene poliza asociada)
+  let seguroData = null;
+  if (data.seguro != null) {
+    const { data: seguro, error: errorSeguro } = await supabase
+      .from("seguros")
+      .select("nropoliza, compania, importe")
+      .eq("nropoliza", data.seguro)
+      .maybeSingle();
+
+    if (errorSeguro) throw errorSeguro;
+    seguroData = seguro;
+  }
+
   return {
     ...data,
     fotos: data.fotos.map((f) => {
@@ -229,6 +242,7 @@ export const getFullProductById = async (productId) => {
     hora: subastaData?.hora ?? null,
     estadoSubasta: subastaData?.estado ?? null,
     categoria: subastaData?.categoria ?? null,
+    seguro: seguroData ?? { nropoliza: null, compania: null, importe: null },
   };
 };
 
