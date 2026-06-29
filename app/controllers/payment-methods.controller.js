@@ -52,6 +52,7 @@ export const addCheck = catchAsync(async (req, res, next) => {
   const currency = requireString(req.body.currency, "currency");
   const amount = requireNumber(req.body.amount, "amount");
   const issueDate = requireString(req.body.issueDate, "issueDate");
+  const tope = requireNumber(req.body.tope, "tope");
 
   const userId = req.user.id;
 

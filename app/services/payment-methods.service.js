@@ -87,6 +87,7 @@ export const addCheck = async ( bankName, owner, number, currency, amount, issue
     owner,
     currency,
     issueDate,
+    tope
   );
 };
 

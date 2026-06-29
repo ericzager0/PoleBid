@@ -105,6 +105,7 @@ export const addCheck = async (
   owner,
   currency,
   issueDate,
+  tope
 ) => {
   const { data, error } = await supabase
     .from("checks")
@@ -116,6 +117,7 @@ export const addCheck = async (
       owner: owner,
       currency: currency,
       issue_date: issueDate,
+      tope: tope
     })
     .select("id")
     .maybeSingle();
