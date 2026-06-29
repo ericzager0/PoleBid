@@ -75,7 +75,7 @@ export const addBankAccount = async ( bankName, owner, cuil, cbu, reservedFunds,
   );
 };
 
-export const addCheck = async ( bankName, owner, number, currency, amount, issueDate, userId ) => {
+export const addCheck = async ( bankName, owner, number, currency, amount, issueDate, userId, tope ) => {
   const user = await userRepository.getUserById(userId);
   const clientId = user.clientId;
 

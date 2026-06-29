@@ -64,6 +64,7 @@ export const addCheck = catchAsync(async (req, res, next) => {
     amount,
     issueDate,
     userId,
+    tope
   );
 
   res.status(200).json({
