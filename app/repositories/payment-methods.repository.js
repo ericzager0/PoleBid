@@ -7,6 +7,7 @@ export const addCard = async (
   expYear,
   brand,
   owner,
+  tope
 ) => {
   const { data, error } = await supabase
     .from("cards")
@@ -17,6 +18,7 @@ export const addCard = async (
       exp_year: expYear,
       brand: brand,
       owner: owner,
+      tope: tope
     })
     .select("id")
     .maybeSingle();
@@ -32,7 +34,7 @@ export const getPaymentMethodsByClientId = async (clientId) => {
   const { data: cards, error: cardsError } = await supabase
     .from("cards")
     .select(
-      "id, lastFour:last_four, expMonth:exp_month, expYear:exp_year, brand, owner",
+      "id, lastFour:last_four, expMonth:exp_month, expYear:exp_year, brand, owner, tope",
     )
     .eq("client_id", clientId);
 

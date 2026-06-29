@@ -2,7 +2,7 @@ import { raw } from "express";
 import * as paymentMethodsRepository from "../repositories/payment-methods.repository.js";
 import * as userRepository from "../repositories/user.repository.js";
 
-export const addCard = async (number, expMonth, expYear, owner, userId) => {
+export const addCard = async (number, expMonth, expYear, owner, tope, userId) => {
   const lastFour = number.slice(-4);
   const brand = getCardBrand(number);
 
@@ -16,6 +16,7 @@ export const addCard = async (number, expMonth, expYear, owner, userId) => {
     expYear,
     brand,
     owner,
+    tope
   );
 };
 

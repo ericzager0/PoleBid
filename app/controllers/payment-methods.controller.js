@@ -7,10 +7,11 @@ export const addCard = catchAsync(async (req, res, next) => {
   const expMonth = requireString(req.body.expMonth, "expMonth");
   const expYear = requireString(req.body.expYear, "expYear");
   const owner = requireString(req.body.owner, "owner");
+  const tope = requireNumber(req.body.tope, "tope");
 
   const userId = req.user.id;
 
-  await paymentMethodsService.addCard(number, expMonth, expYear, owner, userId);
+  await paymentMethodsService.addCard(number, expMonth, expYear, owner, tope, userId);
 
   res.status(200).json({
     status: "success",
@@ -22,6 +23,7 @@ export const addBankAccount = catchAsync(async (req, res, next) => {
   const owner = requireString(req.body.owner, "owner");
   const cuil = requireString(req.body.cuil, "cuil");
   const cbu = requireString(req.body.cbu, "cbu");
+
   const reservedFunds =
     req.body.reservedFunds !== undefined
       ? requireNumber(req.body.reservedFunds, "reservedFunds")
